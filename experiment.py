@@ -13,7 +13,7 @@ from model import create_model
 
 #Loads in and prepares the data
 def load_data(args):
-    ins, outs = parsePropulsionCSV(args.trainCSVDir, args.trainCSV, args.pklDirectory)
+    ins, outs = parsePropulsionCSV(args.trainCSVDir, args.trainCSV, args.pklDir)
     
     #Removes any bad intervals and subtracts 28 from the value
     i=0
@@ -30,7 +30,7 @@ def load_data(args):
     outs = np.array(outs)
 
     #Repeats above but for validation data
-    validIns, validOuts = parsePropulsionCSV(args.validCSVDir, args.validCSV,args.pklDirectory)
+    validIns, validOuts = parsePropulsionCSV(args.validCSVDir, args.validCSV,args.pklDir)
     i=0
     while i < len(validOuts):
         if validOuts[i] == -1:
@@ -169,6 +169,7 @@ def create_parser():
     return parser
 
 if __name__ == "__main__":
+    tf.config.threading.set_intra_op_parallelism_threads(12)
     parser = create_parser()
     args = parser.parse_args()
 
