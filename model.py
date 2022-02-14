@@ -8,9 +8,10 @@ from tensorflow.keras import Model
 def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDropout=0):
     inputTensor = Input(shape = (ntimeSteps, nchannels), name = 'input')
 
-    previousTensor = inputTensor
+    previousTensor = inputTensor #previousTensor is used to link all of the tensors together
 
     count=0 #used to name layers
+    #Creates the convolution layers
     for i in convLayers:
         name = 'C%02d'%count
         previousTensor = Convolution1D(
@@ -37,6 +38,7 @@ def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDrop
     previousTensor = Flatten()(previousTensor)
 
     count = 0#used to name layers
+    #Creates the dense layers
     for i in denseLayers:
         name = 'D%02d'%count
         previousTensor = Dense(
@@ -59,8 +61,8 @@ def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDrop
         name = 'output'
     )(previousTensor)
 
-    model = Model(inputs = inputTensor, outputs = output)
-    opt = tf.keras.optimizers.Adam(lr=.0001, beta_1=.9, beta_2=.999, epsilon=None, decay=0.0, amsgrad=False)        
-    model.compile(loss = 'categorical_crossentropy', optimizer = opt, metrics = ['categorical_accuracy'])
+    model = Model(inputs = inputTensor, outputs = output) #Actually creates the model
+    opt = tf.keras.optimizers.Adam(lr=.0001, beta_1=.9, beta_2=.999, epsilon=None, decay=0.0, amsgrad=False) #Creates the optimizer
+    model.compile(loss = 'categorical_crossentropy', optimizer = opt, metrics = ['categorical_accuracy']) #Compiles the model with the optimizer and metrics
     print(model.summary())
     return model

@@ -49,6 +49,7 @@ def load_data(args):
 
     return ins, outs, validIns, validOuts
 
+#Creates a string with all of the important training metadata to be used for file names
 def generate_fname(args):
     #conv layers
     filters = '_'.join(str(x) for x in args.filters)
@@ -78,10 +79,15 @@ def generate_fname(args):
         dropout
     )
 
+#Used to generate batches of examples
+#inputName needs to match the name of the input layer
+#outputName needs to match the name of the output layer
 def batch_generator(ins, outs, batchSize, inputName='input', outputName='output'):
     while True:
+        #Gets a batchSize sized sample from the inputs
         indicies = random.choices(range(ins.shape[0]), k=batchSize)
 
+        #Returns a list of the selected examples and their corresponding outputs
         yield({inputName: ins[indicies,:,:]}, {outputName: outs[indicies,:]})
 
 def execute_exp(args):
@@ -93,6 +99,7 @@ def execute_exp(args):
     conv_layers = [{'filters': f, 'kernelSize': k, 'kernelStrides': ks, 'poolSize': p, 'poolStrides': ps}
                 for f, k, ks, p, ps in zip(args.filters, args.kernel_sizes, args.kernel_strides, args.pool_sizes, args.pool_strides)]
 
+    #Creates the model
     model = create_model(timeSteps,
         channels, 
         nclasses=args.nclasses,
@@ -105,8 +112,10 @@ def execute_exp(args):
                                                       restore_best_weights=True,
                                                       min_delta=args.min_delta)
 
+    #batch generator
     generator = batch_generator(ins, outs, batchSize=args.batchSize)
 
+    #Runs the model
     history = model.fit(x=generator, epochs=args.epochs,
                         steps_per_epoch = args.stepsPerEpoch,
                         verbose=True,
