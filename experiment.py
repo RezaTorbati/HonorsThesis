@@ -13,7 +13,7 @@ from model import create_model
 
 #Loads in and prepares the data
 def load_data(args):
-    ins, outs = parsePropulsionCSV(args.trainCSVDir, args.trainCSV)
+    ins, outs = parsePropulsionCSV(args.trainCSVDir, args.trainCSV, args.pklDirectory)
     
     #Removes any bad intervals and subtracts 28 from the value
     i=0
@@ -30,7 +30,7 @@ def load_data(args):
     outs = np.array(outs)
 
     #Repeats above but for validation data
-    validIns, validOuts = parsePropulsionCSV(args.validCSVDir, args.validCSV)
+    validIns, validOuts = parsePropulsionCSV(args.validCSVDir, args.validCSV,args.pklDirectory)
     i=0
     while i < len(validOuts):
         if validOuts[i] == -1:
@@ -148,6 +148,7 @@ def create_parser():
     parser.add_argument('-trainCSVDir', type=str, default='.', help='Training mastery of propulsion csv directory')
     parser.add_argument('-validCSV', type=str, default='MasteryOfPropulsionValid.csv', help='Validation mastery of propulsion csv file')
     parser.add_argument('-validCSVDir', type=str, default='.', help='Validation mastery of propulsion csv directory')
+    parser.add_argument('-pklDir', type=str, default='', help='Directory to the pkl files')
     parser.add_argument('-nclasses',type = int, default = 6, help='Number of output classes')
     
     parser.add_argument('-batchSize', type=int, default=10, help='training batch size')
