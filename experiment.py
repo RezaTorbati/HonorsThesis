@@ -105,7 +105,8 @@ def execute_exp(args):
         nclasses=args.nclasses,
         denseLayers=dense_layers,
         convLayers=conv_layers,
-        pDropout=args.dropout)
+        pDropout=args.dropout,
+        l2=args.l2)
 
     # Callbacks
     early_stopping_cb = keras.callbacks.EarlyStopping(patience=args.patience,
@@ -171,6 +172,7 @@ def create_parser():
     parser.add_argument('-kernel_strides', nargs='+', type=int, default=[5,1], help='Kernel Strides')
     parser.add_argument('-pool_sizes', nargs='+', type=int, default=[1,5], help='Pooling sizes')
     parser.add_argument('-pool_strides', nargs='+', type = int, default=[1,5], help = 'pooling strides')
+    parser.add_argument('-l2', type=float, default=0, help='Amount of l2 regularization')
 
     parser.add_argument('-dense', nargs='+', type=int, default = [1000,100], help='Size of the dense layers')
     parser.add_argument('-dropout', type=float, default=0, help='dropout rate')

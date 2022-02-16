@@ -5,7 +5,11 @@ from tensorflow.keras.layers import Input, Concatenate
 from tensorflow.keras.layers import Convolution1D, Dense, MaxPooling1D, Flatten, BatchNormalization, Dropout
 from tensorflow.keras import Model
 
-def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDropout=0):
+def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDropout=0, l2=0):
+    regularizer = None
+    if l2 > 0:
+        regularizer = keras.regularizers.l2(l2)
+    
     inputTensor = Input(shape = (ntimeSteps, nchannels), name = 'input')
 
     previousTensor = inputTensor #previousTensor is used to link all of the tensors together
@@ -23,7 +27,8 @@ def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDrop
             kernel_initializer = 'random_uniform',
             bias_initializer = 'zeros',
             name = name,
-            activation = 'elu'
+            activation = 'elu',
+            kernel_regularizer=regularizer
         )(previousTensor)
 
         if(i['poolSize'] > 1):
@@ -46,7 +51,8 @@ def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDrop
             activation = 'elu',
             use_bias = 'True',
             bias_initializer = 'zeros',
-            name = name
+            name = name,
+            kernel_regularizer=regularizer
         )(previousTensor)
 
         if pDropout > 0:
