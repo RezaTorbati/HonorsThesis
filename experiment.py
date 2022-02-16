@@ -118,7 +118,8 @@ def execute_exp(args):
     # Callbacks
     early_stopping_cb = keras.callbacks.EarlyStopping(patience=args.patience,
                                                       restore_best_weights=True,
-                                                      min_delta=args.min_delta)
+                                                      min_delta=args.min_delta,
+                                                      callbacks=[early_stopping_cb])
 
     #batch generator
     generator = batch_generator(ins, outs, batchSize=args.batchSize)
