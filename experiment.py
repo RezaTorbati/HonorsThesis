@@ -118,8 +118,7 @@ def execute_exp(args):
     # Callbacks
     early_stopping_cb = keras.callbacks.EarlyStopping(patience=args.patience,
                                                       restore_best_weights=True,
-                                                      min_delta=args.min_delta,
-                                                      callbacks=[early_stopping_cb])
+                                                      min_delta=args.min_delta)
 
     #batch generator
     generator = batch_generator(ins, outs, batchSize=args.batchSize)
@@ -128,7 +127,8 @@ def execute_exp(args):
     history = model.fit(x=generator, epochs=args.epochs,
                         steps_per_epoch = args.stepsPerEpoch,
                         verbose=True,
-                        validation_data=(validIns, validOuts))
+                        validation_data=(validIns, validOuts),
+                        callbacks=[early_stopping_cb])
 
     # Generate log data
     results = {}
