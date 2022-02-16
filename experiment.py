@@ -67,7 +67,13 @@ def generate_fname(args):
     else:
         dropout = '_drop_%0.2f'%(args.dropout)
 
-    return '%s/%s_filters_%s_kernels_%s_kernelStrides_%s_pools_%s_poolStrides_%s_dense_%s%s'%(
+    # l2
+    if args.l2 is None:
+        l2 = ''
+    else:
+        l2 = '_l2_%0.2f'%(args.l2)
+
+    return '%s/%s_filters_%s_kernels_%s_kernelStrides_%s_pools_%s_poolStrides_%s_dense_%s%s_%s'%(
         args.resultsPath,
         args.exp,
         filters,
@@ -76,7 +82,8 @@ def generate_fname(args):
         pools,
         poolStrides,
         dense,
-        dropout
+        dropout,
+        l2
     )
 
 #Used to generate batches of examples
