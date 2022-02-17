@@ -123,20 +123,20 @@ def execute_exp(args):
     #batch generator
     generator = batch_generator(ins, outs, batchSize=args.batchSize)
 
-    if args.epochs is not None:
+    if args.batchSize is not None:
         #Runs the model
         history = model.fit(x=generator, epochs=args.epochs,
             steps_per_epoch = args.stepsPerEpoch,
             verbose=True,
             validation_data=(validIns, validOuts),
             callbacks=[early_stopping_cb])
-    else:
+    else:   
         #Runs the model
-	history = model.fit(x=ins, y=outs, epochs=args.epochs,
+        history = model.fit(x=ins, y=outs, epochs=args.epochs,
             steps_per_epoch = args.stepsPerEpoch,
-	    verbose=True,
-	    validation_data=(validIns, validOuts),
-	    callbacks=[early_stopping_cb])
+    	    verbose=True,
+    	    validation_data=(validIns, validOuts),
+    	    callbacks=[early_stopping_cb])
 
     # Generate log data
     results = {}
