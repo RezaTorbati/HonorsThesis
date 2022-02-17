@@ -71,7 +71,7 @@ def generate_fname(args):
     if args.l2 is None:
         l2 = ''
     else:
-        l2 = '_l2_%0.2f'%(args.l2)
+        l2 = '_l2_%0.3f'%(args.l2)
 
     return '%s/%s_filters_%s_kernels_%s_kernelStrides_%s_pools_%s_poolStrides_%s_dense_%s%s_%s'%(
         args.resultsPath,
@@ -123,12 +123,20 @@ def execute_exp(args):
     #batch generator
     generator = batch_generator(ins, outs, batchSize=args.batchSize)
 
-    #Runs the model
-    history = model.fit(x=generator, epochs=args.epochs,
-                        steps_per_epoch = args.stepsPerEpoch,
-                        verbose=True,
-                        validation_data=(validIns, validOuts),
-                        callbacks=[early_stopping_cb])
+    if args.epochs is not None:
+        #Runs the model
+        history = model.fit(x=generator, epochs=args.epochs,
+            steps_per_epoch = args.stepsPerEpoch,
+            verbose=True,
+            validation_data=(validIns, validOuts),
+            callbacks=[early_stopping_cb])
+    else:
+        #Runs the model
+	history = model.fit(x=ins, y=outs, epochs=args.epochs,
+            steps_per_epoch = args.stepsPerEpoch,
+	    verbose=True,
+	    validation_data=(validIns, validOuts),
+	    callbacks=[early_stopping_cb])
 
     # Generate log data
     results = {}
@@ -169,9 +177,9 @@ def create_parser():
     parser.add_argument('-pklDir', type=str, default='', help='Directory to the pkl files')
     parser.add_argument('-nclasses',type = int, default = 6, help='Number of output classes')
     
-    parser.add_argument('-batchSize', type=int, default=10, help='training batch size')
+    parser.add_argument('-batchSize', type=int, default=None, help='training batch size')
     parser.add_argument('-epochs',type=int, default = 10, help='Number of epochs to run for')
-    parser.add_argument('-stepsPerEpoch', type=int, default=10, help='Steps taken per epoch')
+    parser.add_argument('-stepsPerEpoch', type=int, default=None, help='Steps taken per epoch')
     parser.add_argument('-patience', type=int, default = 100, help='Patience for early termination')
     parser.add_argument('-min_delta', type=float, default = 0.0, help='Min delta for early termination')
 

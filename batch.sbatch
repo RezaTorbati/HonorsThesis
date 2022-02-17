@@ -4,15 +4,15 @@
 # Reasonable partitions: debug_5min, debug_30min, normal
 #
 
-#SBATCH --partition=normal
+#SBATCH --partition=debug_5min
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=12
 # memory in MB
 #SBATCH --mem=10000
 # The %04a is translated into a 4-digit number that encodes the SLURM_ARRAY_TASK_ID
-#SBATCH --output=slurmOut/init_%J_stdout.txt
-#SBATCH --error=slurmOut/init_%J_stderr.txt
-#SBATCH --time=03:00:00
+#SBATCH --output=slurmOut/d_%J_stdout.txt
+#SBATCH --error=slurmOut/d_%J_stderr.txt
+#SBATCH --time=00:05:00
 #SBATCH --job-name=MasteryOfPropulsion
 #SBATCH --mail-user=reza.j.torbati-1@ou.edu
 #SBATCH --mail-type=ALL
@@ -23,5 +23,5 @@
 source ~fagg/pythonenv/tensorflow/bin/activate
 # Change this line to start an instance of your experiment
 
-python3 experiment.py -pklDir /ourdisk/hpc/symbiotic/auto_archive_notyet/tape_2copies/datasets/group/sippc3/kinematics -epochs 10000 -patience 1000 -batchSize 15 -stepsPerEpoch 12 -kernel_sizes 10 5 5 3 -filters 100 120 140 150 -kernel_strides 5 1 3 1 -pool_sizes 1 3 1 3 -pool_strides 1 2 1 2 -dense 100 25 -dropout .1
+python3 experiment.py -pklDir /ourdisk/hpc/symbiotic/auto_archive_notyet/tape_2copies/datasets/group/sippc3/kinematics -epochs 6000 -patience 3000 -kernel_sizes 20 25 10 5 5 3 2 2 2 2 1 -filters 50 50 55 55 60 60 40 20 10 5 5 -kernel_strides 1 1 1 2 1 1 1 1 1 1 1 -pool_sizes 1 1 5 1 4 3 1 1 1 1 1 -pool_strides 1 1 5 1 3 2 1 1 1 1 1 -dense 20 15 12 10 -dropout .4 -l2 .001
 
