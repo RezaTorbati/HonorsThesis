@@ -71,7 +71,7 @@ def generate_fname(args):
     if args.l2 is None:
         l2 = ''
     else:
-        l2 = '_l2_%0.3f'%(args.l2)
+        l2 = '_l2_%0.4f'%(args.l2)
 
     return '%s/%s_filters_%s_kernels_%s_kernelStrides_%s_pools_%s_poolStrides_%s_dense_%s%s_%s'%(
         args.resultsPath,
