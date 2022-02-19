@@ -103,7 +103,7 @@ def execute_exp(args):
     channels = len(ins[0][0])
 
     dense_layers = [{'units': i} for i in args.dense]
-    conv_layers = [{'filters': f, 'kernelSize': k, 'kernelStrides': ks, 'poolSize': p, 'poolStrides': ps}
+    conv_layers = [{'f': f, 'k': k, 'kStrides': ks, 'p': p, 'pStrides': ps}
                 for f, k, ks, p, ps in zip(args.filters, args.kernel_sizes, args.kernel_strides, args.pool_sizes, args.pool_strides)]
 
     #Creates the model
