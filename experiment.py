@@ -73,7 +73,7 @@ def generate_fname(args):
     else:
         l2 = '_l2_%0.3f'%(args.l2)
 
-    return '%s/%s_filters_%s_kernels_%s_kernelStrides_%s_pools_%s_poolStrides_%s_dense_%s%s_%s'%(
+    return '%s/%s_f_%s_k_%s_kStrides_%s_p_%s_pStrides_%s_d_%s%s_%s'%(
         args.resultsPath,
         args.exp,
         filters,
@@ -103,7 +103,7 @@ def execute_exp(args):
     channels = len(ins[0][0])
 
     dense_layers = [{'units': i} for i in args.dense]
-    conv_layers = [{'f': f, 'k': k, 'kStrides': ks, 'p': p, 'pStrides': ps}
+    conv_layers = [{'filters': f, 'kernelSize': k, 'kernelStrides': ks, 'poolSize': p, 'poolStrides': ps}
                 for f, k, ks, p, ps in zip(args.filters, args.kernel_sizes, args.kernel_strides, args.pool_sizes, args.pool_strides)]
 
     #Creates the model
