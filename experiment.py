@@ -73,7 +73,7 @@ def generate_fname(args):
     else:
         l2 = '_l2_%0.3f'%(args.l2)
 
-    return '%s/%s_f_%s_k_%s_kStrides_%s_p_%s_pStrides_%s_d_%s%s_%s'%(
+    return '%s/%s_f%s_k%s_kStrides%s_p%s_pStrides%s_d%s%s%s'%(
         args.resultsPath,
         args.exp,
         filters,

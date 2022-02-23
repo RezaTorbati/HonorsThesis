@@ -14,6 +14,7 @@ def loadResults(dirName, fileBase):
     
     results = []
     for f in files:
+        print(f)
         results.append(pickle.load(open("%s/%s"%(dirName, f), "rb")))
 
     return results
