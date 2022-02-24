@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import pickle
 import math
+import skimage.measure
 
 #Returns a list of all of the trials specified in df
 def loadTrials(directory, df):
@@ -151,7 +152,11 @@ def parseTrials(trialData):
         exampleData = np.concatenate((exampleData,encoding1),axis = 1)
         exampleData = np.concatenate((exampleData,encoding2),axis = 1)
 
+        #Reduces to 7500 time steps or 750 time steps per label
+        exampleData = skimage.measure.block_reduce(exampleData, (2,1), np.average)
+        
         data.append(exampleData)
+    
     return data
 
 #Returns a list of trials as described in pklDictionary
@@ -178,9 +183,9 @@ def parsePropulsionCSV(directory, fname, pklDirectory = '', breakUpValues = True
     
     splitLabels = [l for label in labels for l in label]
     
-    #print(len(splitData))
-    #print(len(splitData[0]))
-    #print(len(splitData[0][0]))
+    print(len(splitData))
+    print(len(splitData[0]))
+    print(len(splitData[0][0]))
     #print(len(splitLabels))
 
     return splitData, splitLabels

@@ -14,7 +14,7 @@ def loadResults(dirName, fileBase):
     
     results = []
     for f in files:
-        print(f)
+        #print(f)
         results.append(pickle.load(open("%s/%s"%(dirName, f), "rb")))
 
     return results
@@ -25,7 +25,9 @@ def visualizeExperiment(dirName, fileBase, metric='categorical_accuracy'):
     results = loadResults(dirName, fileBase)
 
     for i, r in enumerate(results):
-        plt.plot(r['history'][metric], label='Model {:d}'.format(i+1))
+        #if np.average(heapq.nlargest(10, r['history']['val_' + metric])) > .6:
+            print(r['args'])
+            plt.plot(r['history'][metric], label='Model {:d}'.format(i+1))
     plt.title('Training')
     plt.xlabel('epochs')
     plt.ylabel(metric)
@@ -33,7 +35,8 @@ def visualizeExperiment(dirName, fileBase, metric='categorical_accuracy'):
     plt.show()
 
     for i, r in enumerate(results):
-        plt.plot(r['history']['val_' + metric], label='Model {:d}'.format(i+1))
+        #if np.average(heapq.nlargest(10, r['history']['val_' + metric])) > .6:
+            plt.plot(r['history']['val_' + metric], label='Model {:d}'.format(i+1))
     plt.title('Validation')
     plt.xlabel('epochs')
     plt.ylabel(metric)
@@ -51,9 +54,11 @@ def visualizeConfusion(dirName, fileBase, key_true='true_validation', key_predic
     results = loadResults(dirName, fileBase)
 
     for r in results:
-        preds = r[key_predict]
-        trues = r[key_true]
-        metrics.generate_confusion_matrix(trues, preds, ['28', '29', '30', '31', '32', '33'])
+        #if np.average(heapq.nlargest(10, r['history']['val_categorical_accuracy'])) > .6:
+            print(r['args'])
+            preds = r[key_predict]
+            trues = r[key_true]
+            metrics.generate_confusion_matrix(trues, preds, ['28', '29', '30', '31', '32', '33'])
 
 
 if __name__=='__main__':
