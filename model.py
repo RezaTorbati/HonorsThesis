@@ -2,7 +2,7 @@ import tensorflow as tf
 
 from tensorflow import keras
 from tensorflow.keras.layers import Input, Concatenate
-from tensorflow.keras.layers import Convolution1D, Dense, MaxPooling1D, Flatten, BatchNormalization, Dropout
+from tensorflow.keras.layers import Convolution1D, Dense, MaxPooling1D, Flatten, BatchNormalization, Dropout, AveragePooling1D
 from tensorflow.keras import Model
 
 def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDropout=0, l2=0):
@@ -13,6 +13,13 @@ def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDrop
     inputTensor = Input(shape = (ntimeSteps, nchannels), name = 'input')
 
     previousTensor = inputTensor #previousTensor is used to link all of the tensors together
+
+    #temporary while waiting for skimage to be installed on oscer
+    previousTensor=AveragePooling1D(
+                pool_size=2, 
+                strides = 2,
+                name='AdvPool'
+            )(previousTensor)
 
     count=0 #used to name layers
     #Creates the convolution layers
