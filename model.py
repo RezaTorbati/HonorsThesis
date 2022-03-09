@@ -15,12 +15,14 @@ def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDrop
     previousTensor = inputTensor #previousTensor is used to link all of the tensors together
 
     #temporary while waiting for skimage to be installed on oscer
+    '''    
     previousTensor=AveragePooling1D(
                 pool_size=2, 
                 strides = 2,
                 name='AdvPool'
             )(previousTensor)
-
+    '''
+    
     count=0 #used to name layers
     #Creates the convolution layers
     for i in convLayers:
@@ -29,7 +31,7 @@ def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDrop
             filters = i['filters'],
             kernel_size = i['kernelSize'],
             strides = i['kernelStrides'],
-            padding = 'valid',
+            padding = 'same',
             use_bias = True,
             kernel_initializer = 'random_uniform',
             bias_initializer = 'zeros',
@@ -43,6 +45,7 @@ def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDrop
             previousTensor=MaxPooling1D(
                 pool_size=i['poolSize'], 
                 strides = i['poolStrides'],
+                padding = 'same',
                 name=name
             )(previousTensor)
         count+=1

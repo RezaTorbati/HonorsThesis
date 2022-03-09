@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import pickle
 import math
-#import skimage.measure
+import skimage.measure
 
 #Returns a list of all of the trials specified in df
 def loadTrials(directory, df):
@@ -39,7 +39,7 @@ sippc_action.action as two groups of 1 hot encodings:
     1st is either no movement, powersteering or suit
     2nd is left, right, forward or back
 '''
-def parseTrials(trialData):
+def parseTrials(trialData, reduceSize = 1):
     data = []
     for t in trialData:
         array = t['back']['pos_filtered']
@@ -153,7 +153,8 @@ def parseTrials(trialData):
         exampleData = np.concatenate((exampleData,encoding2),axis = 1)
 
         #Reduces to 7500 time steps or 750 time steps per label
-        #exampleData = skimage.measure.block_reduce(exampleData, (2,1), np.average)
+        if reduceSize > 1:
+            exampleData = skimage.measure.block_reduce(exampleData, (reduceSize,1), np.average)
 
         data.append(exampleData)
     
@@ -162,7 +163,7 @@ def parseTrials(trialData):
 #Returns a list of trials as described in pklDictionary
 #Inside each trial is an array containing 15000 time steps
 #Instead each time step is the list of 51 extracted values show above
-def parsePropulsionCSV(directory, fname, pklDirectory = '', breakUpValues = True):
+def parsePropulsionCSV(directory, fname, pklDirectory = '', reduceSize=1, breakUpValues = True):
     if pklDirectory == '':
         pklDirectory = directory + '/KinPklData'
 
@@ -172,7 +173,7 @@ def parsePropulsionCSV(directory, fname, pklDirectory = '', breakUpValues = True
     labels = df[['0', '30', '60', '90', '120', '150', '180', '210', '240', '270']].values.tolist()
 
     trialData = loadTrials(pklDirectory, df)    
-    data = parseTrials(trialData)
+    data = parseTrials(trialData, reduceSize)
 
     if not breakUpValues:
         return data , labels 

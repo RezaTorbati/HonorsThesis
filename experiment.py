@@ -13,7 +13,7 @@ from model import create_model
 
 #Loads in and prepares the data
 def load_data(args):
-    ins, outs = parsePropulsionCSV(args.trainCSVDir, args.trainCSV, args.pklDir)
+    ins, outs = parsePropulsionCSV(args.trainCSVDir, args.trainCSV, args.pklDir, args.reduce)
     
     #Removes any bad intervals and subtracts 28 from the value
     i=0
@@ -127,7 +127,7 @@ def execute_exp(args):
 
     if args.batchSize is not None:
         #Runs the model
-        history = model.fit(x=generator, epochs=args.epochs,
+        history = model.fit(x=ins, y=outs, epochs=args.epochs,
             steps_per_epoch = args.stepsPerEpoch,
             verbose=True,
             validation_data=(validIns, validOuts),
@@ -177,6 +177,7 @@ def create_parser():
     parser.add_argument('-validCSV', type=str, default='MasteryOfPropulsionValid.csv', help='Validation mastery of propulsion csv file')
     parser.add_argument('-validCSVDir', type=str, default='.', help='Validation mastery of propulsion csv directory')
     parser.add_argument('-pklDir', type=str, default='', help='Directory to the pkl files')
+    parser.add_argument('-reduce', type=int, default=1, help='amount to initially reduce the array by')
     parser.add_argument('-nclasses',type = int, default = 6, help='Number of output classes')
     
     parser.add_argument('-batchSize', type=int, default=None, help='training batch size')
