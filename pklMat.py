@@ -54,7 +54,7 @@ if __name__ == '__main__':
         print("Also, optional 4th arg for out directory")
         exit(-1)
 
-    if(sys.argv[3] is not None):
+    if(len(sys.argv) == 4):
         convertCSV(sys.argv[1], sys.argv[2], sys.argv[3])
     else:
         convertCSV(sys.argv[1], sys.argv[2])

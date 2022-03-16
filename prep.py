@@ -160,15 +160,62 @@ def parseTrials(trialData, reduceSize = 1):
     
     return data
 
+def translateScore(score):
+    if score == 28:
+        return -2
+    elif score == 29:
+        return -1
+    elif score == -1:
+        return 0
+    elif score == 30:
+        return 1
+    elif score == 31:
+        return 2
+    elif score == 32:
+        return 3
+    elif score == 33:
+        return 4
+
+def getFinalScore(row):
+    score = 0
+    score += translateScore(row['0'])
+    score += translateScore(row['30'])
+    score += translateScore(row['60'])
+    score += translateScore(row['90'])
+    score += translateScore(row['120'])
+    score += translateScore(row['150'])
+    score += translateScore(row['180'])
+    score += translateScore(row['210'])
+    score += translateScore(row['240'])
+    score += translateScore(row['270'])
+    return score
+
+def getStats(df):
+    freqs = [0] * 6
+    times = ['0', '30', '60', '90', '120', '150', '180', '210', '240', '270']
+    for index, row in df.iterrows():
+        #if getFinalScore(row) != row['FinalScore']:
+            #print("WARNING: score mismatch in row ", index+2)
+            #print(f"Subject {row['Subject']} on {row['Date']} expected {getFinalScore(row)}, got {row['FinalScore']}")
+        for t in times:
+            if row[t]-28 >=0:
+                freqs[row[t]-28]+=1
+    
+    for i in range(0,len(freqs)):
+        print(f'{i+28}: {freqs[i]}, {(freqs[i] / sum(freqs)) * 100}%')
+
 #Returns a list of trials as described in pklDictionary
 #Inside each trial is an array containing 15000 time steps
 #Instead each time step is the list of 51 extracted values show above
-def parsePropulsionCSV(directory, fname, pklDirectory = '', reduceSize=1, breakUpValues = True):
+def parsePropulsionCSV(directory, fname, pklDirectory = '', reduceSize=1, breakUpValues = True, printStats=True):
     if pklDirectory == '':
         pklDirectory = directory + '/KinPklData'
 
     fname = directory + '/' + fname
     df = pd.read_csv(fname)
+    
+    if printStats:
+        getStats(df)
 
     labels = df[['0', '30', '60', '90', '120', '150', '180', '210', '240', '270']].values.tolist()
 
@@ -184,13 +231,15 @@ def parsePropulsionCSV(directory, fname, pklDirectory = '', reduceSize=1, breakU
     
     splitLabels = [l for label in labels for l in label]
     
-    #print(len(splitData))
-    #print(len(splitData[0]))
-    #print(len(splitData[0][0]))
+    print(len(splitData))
+    print(len(splitData[0]))
+    print(len(splitData[0][0]))
     #print(len(splitLabels))
 
     return splitData, splitLabels
         
 if __name__=='__main__':
-    parsePropulsionCSV('.', 'MasteryOfPropulsionData.csv')
+    #parsePropulsionCSV('.', 'MasteryOfPropulsionData.csv', printStats=True)
+    parsePropulsionCSV('.', 'MasteryOfPropulsionTrain.csv', printStats=True)
+    parsePropulsionCSV('.', 'MasteryOfPropulsionValid.csv', printStats=True)
     #parsePropulsionCSV('.', 'TestPropulsion.csv')
