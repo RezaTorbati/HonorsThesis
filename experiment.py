@@ -30,7 +30,7 @@ def load_data(args):
     outs = np.array(outs)
 
     #Repeats above but for validation data
-    validIns, validOuts = parsePropulsionCSV(args.validCSVDir, args.validCSV,args.pklDir)
+    validIns, validOuts = parsePropulsionCSV(args.validCSVDir, args.validCSV,args.pklDir, args.reduce)
     i=0
     while i < len(validOuts):
         if validOuts[i] == -1:
@@ -73,9 +73,10 @@ def generate_fname(args):
     else:
         l2 = '_l2_%0.4f'%(args.l2)
 
-    return '%s/%s_f%s_k%s_kStrides%s_p%s_pStrides%s_d%s%s%s'%(
+    return '%s/%s_r%s_f%s_k%s_kStrides%s_p%s_pStrides%s_d%s%s%s'%(
         args.resultsPath,
         args.exp,
+        args.reduce,
         filters,
         kernelSizes,
         kernelStrides,
