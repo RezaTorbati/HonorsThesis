@@ -175,6 +175,8 @@ def translateScore(score):
         return 3
     elif score == 33:
         return 4
+    else:
+        print("Error, invalid score")
 
 def getFinalScore(row):
     score = 0

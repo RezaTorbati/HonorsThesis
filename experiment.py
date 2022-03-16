@@ -128,7 +128,7 @@ def execute_exp(args):
 
     if args.batchSize is not None:
         #Runs the model
-        history = model.fit(x=ins, y=outs, epochs=args.epochs,
+        history = model.fit(x=generator, epochs=args.epochs,
             steps_per_epoch = args.stepsPerEpoch,
             verbose=True,
             validation_data=(validIns, validOuts),
