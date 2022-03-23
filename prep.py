@@ -209,7 +209,7 @@ def getStats(df):
 #Returns a list of trials as described in pklDictionary
 #Inside each trial is an array containing 15000 time steps
 #Instead each time step is the list of 51 extracted values show above
-def parsePropulsionCSV(directory, fname, pklDirectory = '', reduceSize=1, breakUpValues = True, printStats=True):
+def parsePropulsionCSV(directory, fname, pklDirectory = '', reduceSize=1, breakUpValues = True, printStats=True, nogo=False):
     if pklDirectory == '':
         pklDirectory = directory + '/KinPklData'
 
@@ -218,6 +218,8 @@ def parsePropulsionCSV(directory, fname, pklDirectory = '', reduceSize=1, breakU
     
     if printStats:
         getStats(df)
+    if nogo:
+        return -1
 
     labels = df[['0', '30', '60', '90', '120', '150', '180', '210', '240', '270']].values.tolist()
 
@@ -241,7 +243,9 @@ def parsePropulsionCSV(directory, fname, pklDirectory = '', reduceSize=1, breakU
     return splitData, splitLabels
         
 if __name__=='__main__':
-    #parsePropulsionCSV('.', 'MasteryOfPropulsionData.csv', printStats=True)
-    parsePropulsionCSV('.', 'MasteryOfPropulsionTrain.csv', printStats=True)
-    parsePropulsionCSV('.', 'MasteryOfPropulsionValid.csv', printStats=True)
+    parsePropulsionCSV('.', 'MasteryOfPropulsionData.csv', printStats=True, nogo=True)
+    print()
+    parsePropulsionCSV('.', 'MasteryOfPropulsionTrain.csv', printStats=True, nogo=True)
+    print()
+    parsePropulsionCSV('.', 'MasteryOfPropulsionValid.csv', printStats=True, nogo=True)
     #parsePropulsionCSV('.', 'TestPropulsion.csv')
