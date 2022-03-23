@@ -31,7 +31,7 @@ def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDrop
             filters = i['filters'],
             kernel_size = i['kernelSize'],
             strides = i['kernelStrides'],
-            padding = 'same',
+            padding = 'valid',
             use_bias = True,
             kernel_initializer = 'random_uniform',
             bias_initializer = 'zeros',
