@@ -54,7 +54,6 @@ def generate_fname(args):
     #conv layers
     filters = '_'.join(str(x) for x in args.filters)
     kernelSizes = '_'.join(str(x) for x in args.kernel_sizes)
-    kernelStrides = '_'.join(str(x) for x in args.kernel_strides)
     pools = '_'.join(str(x) for x in args.pool_sizes)
     poolStrides = '_'.join(str(x) for x in args.pool_strides)
 
@@ -73,13 +72,12 @@ def generate_fname(args):
     else:
         l2 = '_l2_%0.4f'%(args.l2)
 
-    return '%s/%s_r%s_f%s_k%s_kStrides%s_p%s_pStrides%s_d%s%s%s'%(
+    return '%s/%s_r%s_f%s_k%s_p%s_pStrides%s_d%s%s%s'%(
         args.resultsPath,
         args.exp,
         args.reduce,
         filters,
         kernelSizes,
-        kernelStrides,
         pools,
         poolStrides,
         dense,
@@ -104,8 +102,8 @@ def execute_exp(args):
     channels = len(ins[0][0])
 
     dense_layers = [{'units': i} for i in args.dense]
-    conv_layers = [{'filters': f, 'kernelSize': k, 'kernelStrides': ks, 'poolSize': p, 'poolStrides': ps}
-                for f, k, ks, p, ps in zip(args.filters, args.kernel_sizes, args.kernel_strides, args.pool_sizes, args.pool_strides)]
+    conv_layers = [{'filters': f, 'kernelSize': k, 'poolSize': p, 'poolStrides': ps}
+                for f, k, p, ps in zip(args.filters, args.kernel_sizes, args.pool_sizes, args.pool_strides)]
 
     #Creates the model
     model = create_model(timeSteps,
@@ -189,7 +187,6 @@ def create_parser():
 
     parser.add_argument('-kernel_sizes', nargs='+', type=int, default=[20,10], help='Kernel Sizes')
     parser.add_argument('-filters', nargs='+', type=int, default=[75,100], help='Filter Sizes')
-    parser.add_argument('-kernel_strides', nargs='+', type=int, default=[5,1], help='Kernel Strides')
     parser.add_argument('-pool_sizes', nargs='+', type=int, default=[1,5], help='Pooling sizes')
     parser.add_argument('-pool_strides', nargs='+', type = int, default=[1,5], help = 'pooling strides')
     parser.add_argument('-l2', type=float, default=0, help='Amount of l2 regularization')

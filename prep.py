@@ -235,9 +235,9 @@ def parsePropulsionCSV(directory, fname, pklDirectory = '', reduceSize=1, breakU
     
     splitLabels = [l for label in labels for l in label]
     
-    print(len(splitData))
-    print(len(splitData[0]))
-    print(len(splitData[0][0]))
+    #print(len(splitData))
+    #print(len(splitData[0]))
+    #print(len(splitData[0][0]))
     #print(len(splitLabels))
 
     return splitData, splitLabels

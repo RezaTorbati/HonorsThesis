@@ -30,7 +30,7 @@ def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDrop
         previousTensor = Convolution1D(
             filters = i['filters'],
             kernel_size = i['kernelSize'],
-            strides = i['kernelStrides'],
+            strides = 1,
             padding = 'valid',
             use_bias = True,
             kernel_initializer = 'random_uniform',
