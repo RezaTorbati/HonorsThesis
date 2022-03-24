@@ -60,19 +60,11 @@ def generate_fname(args):
     #dense layers
     dense = '_'.join(str(x) for x in args.dense)
 
-    # Dropout
-    if args.dropout is None:
-        dropout = ''
-    else:
-        dropout = '_drop_%0.2f'%(args.dropout)
+    dropout = '_drop_%.2f'%(args.dropout)
+    l2 = '_l2_%.5f'%(args.l2)
+    sDropout = '_sDrop_%.2f'%(args.sDropout)
 
-    # l2
-    if args.l2 is None:
-        l2 = ''
-    else:
-        l2 = '_l2_%0.4f'%(args.l2)
-
-    return '%s/%s_r%s_f%s_k%s_p%s_pStrides%s_d%s%s%s'%(
+    return '%s/%s_r%s_f%s_k%s_p%s_pStrides%s_d%s%s%s%s'%(
         args.resultsPath,
         args.exp,
         args.reduce,
@@ -82,6 +74,7 @@ def generate_fname(args):
         poolStrides,
         dense,
         dropout,
+        sDropout,
         l2
     )
 
@@ -112,7 +105,8 @@ def execute_exp(args):
         denseLayers=dense_layers,
         convLayers=conv_layers,
         pDropout=args.dropout,
-        l2=args.l2)
+        l2=args.l2,
+        sDropout=args.sDropout)
 
     # Callbacks
     early_stopping_cb = keras.callbacks.EarlyStopping(patience=args.patience,
@@ -192,7 +186,8 @@ def create_parser():
     parser.add_argument('-l2', type=float, default=0, help='Amount of l2 regularization')
 
     parser.add_argument('-dense', nargs='+', type=int, default = [1000,100], help='Size of the dense layers')
-    parser.add_argument('-dropout', type=float, default=0, help='dropout rate')
+    parser.add_argument('-dropout', type=float, default=0, help='dropout rate for dense layers')
+    parser.add_argument('-sDropout', type=float, default=0, help='dropout rate for filters')
 
     return parser
 

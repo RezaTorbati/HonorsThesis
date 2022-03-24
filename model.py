@@ -2,10 +2,10 @@ import tensorflow as tf
 
 from tensorflow import keras
 from tensorflow.keras.layers import Input, Concatenate
-from tensorflow.keras.layers import Convolution1D, Dense, MaxPooling1D, Flatten, BatchNormalization, Dropout, AveragePooling1D
+from tensorflow.keras.layers import Convolution1D, Dense, MaxPooling1D, Flatten, BatchNormalization, Dropout, AveragePooling1D, SpatialDropout1D
 from tensorflow.keras import Model
 
-def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDropout=0, l2=0):
+def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDropout=0, sDropout=0, l2=0):
     regularizer = None
     if l2 > 0:
         regularizer = keras.regularizers.l2(l2)
@@ -48,6 +48,11 @@ def create_model(ntimeSteps, nchannels, nclasses, convLayers, denseLayers, pDrop
                 padding = 'same',
                 name=name
             )(previousTensor)
+        
+        if sDropout > 0:
+            name='SpatialDrop%.02d'%count
+            previousTensor=SpatialDropout1D(sDropout, name=name)(previousTensor)
+            
         count+=1
 
     previousTensor = Flatten()(previousTensor)
