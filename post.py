@@ -26,8 +26,8 @@ def visualizeExperiment(dirName, fileBase, metric='categorical_accuracy'):
 
     for i, r in enumerate(results):
         #if np.average(heapq.nlargest(10, r['history']['val_' + metric])) > .6:
-            print(r['args'])
-            plt.plot(r['history'][metric], label='Model {:d}'.format(i+1))
+        print(r['args'])
+        plt.plot(r['history'][metric], label='Model {:d}'.format(i+1))
     plt.title('Training')
     plt.xlabel('epochs')
     plt.ylabel(metric)
@@ -36,7 +36,7 @@ def visualizeExperiment(dirName, fileBase, metric='categorical_accuracy'):
 
     for i, r in enumerate(results):
         #if np.average(heapq.nlargest(10, r['history']['val_' + metric])) > .6:
-            plt.plot(r['history']['val_' + metric], label='Model {:d}'.format(i+1))
+        plt.plot(r['history']['val_' + metric], label='Model {:d}'.format(i+1))
     plt.title('Validation')
     plt.xlabel('epochs')
     plt.ylabel(metric)
@@ -50,15 +50,21 @@ def visualizeExperiment(dirName, fileBase, metric='categorical_accuracy'):
     print('Average Val Accuracy: ', (accuracy/len(results)))
 
 #Displays the confusion matrix
-def visualizeConfusion(dirName, fileBase, key_true='true_validation', key_predict='predict_validation'):
+def visualizeConfusion(dirName, fileBase, types = ['validation']):
     results = loadResults(dirName, fileBase)
-
     for r in results:
-        #if np.average(heapq.nlargest(10, r['history']['val_categorical_accuracy'])) > .6:
-            print(r['args'])
-            preds = r[key_predict]
-            trues = r[key_true]
-            metrics.generate_confusion_matrix(trues, preds, ['28', '29', '30', '31', '32', '33'])
+        print(r['args'])
+        for t in types:
+            key_predict = 'predict_' + t
+            key_true = 'true_' + t
+
+            try:
+                print('Accuracy: ', r[key_predict+'_eval'][1])
+                preds = r[key_predict]
+                trues = r[key_true]
+                metrics.generate_confusion_matrix(trues, preds, ['28', '29', '30', '31', '32', '33'])
+            except KeyError as e:
+                print('Error, cannot find key ', t)
 
 
 if __name__=='__main__':

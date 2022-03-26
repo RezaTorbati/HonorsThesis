@@ -43,11 +43,29 @@ def load_data(args):
     validIns = np.array(validIns)
     validOuts = np.array(validOuts)
 
+    testIns=None
+    testOuts = None
+    if args.testCSV is not None:
+        testIns, testOuts = parsePropulsionCSV(args.testCSVDir, args.testCSV,args.pklDir, args.reduce)
+        i=0
+        while i < len(testOuts):
+            if testOuts[i] == -1:
+                del(testOuts[i])
+                del(testIns[i])
+                i-=1
+            else:
+                testOuts[i] -= 28
+            i+=1
+        testIns = np.array(testIns)
+        testOuts = np.array(testOuts)
+
     #1hot encodes the outputs
     outs = np.eye(args.nclasses)[outs]
     validOuts = np.eye(args.nclasses)[validOuts]
+    if testOuts is not None:
+        testOuts = np.eye(args.nclasses)[testOuts]
 
-    return ins, outs, validIns, validOuts
+    return ins, outs, validIns, validOuts, testIns, testOuts
 
 #Creates a string with all of the important training metadata to be used for file names
 def generate_fname(args):
@@ -90,7 +108,7 @@ def batch_generator(ins, outs, batchSize, inputName='input', outputName='output'
         yield({inputName: ins[indicies,:,:]}, {outputName: outs[indicies,:]})
 
 def execute_exp(args):
-    ins, outs, validIns, validOuts = load_data(args)
+    ins, outs, validIns, validOuts, testIns, testOuts = load_data(args)
     timeSteps = len(ins[0])
     channels = len(ins[0][0])
 
@@ -142,9 +160,12 @@ def execute_exp(args):
     results['predict_validation'] = model.predict(validIns)
     results['predict_validation_eval'] = model.evaluate(validIns, validOuts)
     results['true_validation'] = validOuts
-    #results['predict_testing'] = model.predict(ins_testing)
-    #results['predict_testing_eval'] = model.evaluate(ins_testing, outs_testing)
-    #results['folds'] = folds
+
+    if args.testCSV is not None:
+        results['predict_testing'] = model.predict(testIns)
+        results['predict_testing_eval'] = model.evaluate(testIns, testOuts)
+        results['true_testing'] = testOuts
+
     results['history'] = history.history
 
     # Save results
@@ -169,6 +190,8 @@ def create_parser():
     parser.add_argument('-trainCSVDir', type=str, default='.', help='Training mastery of propulsion csv directory')
     parser.add_argument('-validCSV', type=str, default='MasteryOfPropulsionValid.csv', help='Validation mastery of propulsion csv file')
     parser.add_argument('-validCSVDir', type=str, default='.', help='Validation mastery of propulsion csv directory')
+    parser.add_argument('-testCSV', type=str, default=None, help='Test mastery of propulsion csv file')
+    parser.add_argument('-testCSVDir', type=str, default='.', help='Test mastery of propulsion csv directory')
     parser.add_argument('-pklDir', type=str, default='', help='Directory to the pkl files')
     parser.add_argument('-reduce', type=int, default=1, help='amount to initially reduce the array by')
     parser.add_argument('-nclasses',type = int, default = 6, help='Number of output classes')

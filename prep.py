@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
+import sys
 import pickle
 import math
 import skimage.measure
@@ -205,6 +206,7 @@ def getStats(df):
     
     for i in range(0,len(freqs)):
         print(f'{i+28}: {freqs[i]}, {(freqs[i] / sum(freqs)) * 100}%')
+    print()
 
 #Returns a list of trials as described in pklDictionary
 #Inside each trial is an array containing 15000 time steps
@@ -243,9 +245,10 @@ def parsePropulsionCSV(directory, fname, pklDirectory = '', reduceSize=1, breakU
     return splitData, splitLabels
         
 if __name__=='__main__':
-    parsePropulsionCSV('.', 'MasteryOfPropulsionData.csv', printStats=True, nogo=True)
-    print()
-    parsePropulsionCSV('.', 'MasteryOfPropulsionTrain.csv', printStats=True, nogo=True)
-    print()
-    parsePropulsionCSV('.', 'MasteryOfPropulsionValid.csv', printStats=True, nogo=True)
+    parsePropulsionCSV('.', sys.argv[1], printStats=True, nogo=True)
+    #parsePropulsionCSV('.', 'MasteryOfPropulsionData.csv', printStats=True, nogo=True)
+    #print()
+    #parsePropulsionCSV('.', 'MasteryOfPropulsionTrain.csv', printStats=True, nogo=True)
+    #print()
+    #parsePropulsionCSV('.', 'MasteryOfPropulsionValid.csv', printStats=True, nogo=True)
     #parsePropulsionCSV('.', 'TestPropulsion.csv')
