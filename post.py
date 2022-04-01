@@ -14,7 +14,7 @@ def loadResults(dirName, fileBase):
     
     results = []
     for f in files:
-        print(f)
+        #print(f)
         results.append(pickle.load(open("%s/%s"%(dirName, f), "rb")))
 
     return results
@@ -53,7 +53,7 @@ def visualizeExperiment(dirName, fileBase, metric='categorical_accuracy'):
 def visualizeConfusion(dirName, fileBase, types = ['validation']):
     results = loadResults(dirName, fileBase)
     for r in results:
-        print(r['args'])
+        #print(r['args'])
         for t in types:
             key_predict = 'predict_' + t
             key_true = 'true_' + t

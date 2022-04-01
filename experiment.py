@@ -13,6 +13,8 @@ from model import create_model
 
 #Loads in and prepares the data
 def load_data(args):
+    test = '%s/rot%d'%(args.rotsPath, args.rot)
+
     ins, outs = parsePropulsionCSV(args.trainCSVDir, args.trainCSV, args.pklDir, args.reduce)
     
     #Removes any bad intervals and subtracts 28 from the value
@@ -185,13 +187,15 @@ def create_parser():
     parser = argparse.ArgumentParser(description='Mastery of Propulsion Learner', fromfile_prefix_chars='@')
     
     parser.add_argument('-exp', type=str, default='Propulsion', help='Tag to be put in file name')
+    parser.add_argument('-rot', type=int, default=1, help='rotation')
+    parser.add_argument('-rotsPath', type=str, default='rotations', help='Path to the csv files with the rotations')
     parser.add_argument('-resultsPath', type=str, default='results', help='Directory to store results in')
-    parser.add_argument('-trainCSV', type=str, default='MasteryOfPropulsionTrain.csv', help='Training mastery of propulsion csv file')
-    parser.add_argument('-trainCSVDir', type=str, default='.', help='Training mastery of propulsion csv directory')
-    parser.add_argument('-validCSV', type=str, default='MasteryOfPropulsionValid.csv', help='Validation mastery of propulsion csv file')
-    parser.add_argument('-validCSVDir', type=str, default='.', help='Validation mastery of propulsion csv directory')
-    parser.add_argument('-testCSV', type=str, default=None, help='Test mastery of propulsion csv file')
-    parser.add_argument('-testCSVDir', type=str, default='.', help='Test mastery of propulsion csv directory')
+    #parser.add_argument('-trainCSV', type=str, default='MasteryOfPropulsionTrain.csv', help='Training mastery of propulsion csv file')
+    #parser.add_argument('-trainCSVDir', type=str, default='.', help='Training mastery of propulsion csv directory')
+    #parser.add_argument('-validCSV', type=str, default='MasteryOfPropulsionValid.csv', help='Validation mastery of propulsion csv file')
+    #parser.add_argument('-validCSVDir', type=str, default='.', help='Validation mastery of propulsion csv directory')
+    #parser.add_argument('-testCSV', type=str, default=None, help='Test mastery of propulsion csv file')
+    #parser.add_argument('-testCSVDir', type=str, default='.', help='Test mastery of propulsion csv directory')
     parser.add_argument('-pklDir', type=str, default='', help='Directory to the pkl files')
     parser.add_argument('-reduce', type=int, default=1, help='amount to initially reduce the array by')
     parser.add_argument('-nclasses',type = int, default = 6, help='Number of output classes')
