@@ -90,10 +90,9 @@ def generate_fname(args):
     l2 = '_l2_%.5f'%(args.l2)
     sDropout = '_sDrop_%.2f'%(args.sDropout)
 
-    return '%s/%s_rot%d_r%s_f%s_k%s_p%s_pStrides%s_d%s%s%s%s'%(
+    return '%s/%s_r%s_f%s_k%s_p%s_pStrides%s_d%s%s%s%s_rot%d'%(
         args.resultsPath,
         args.exp,
-        args.rot,
         args.reduce,
         filters,
         kernelSizes,
@@ -102,7 +101,8 @@ def generate_fname(args):
         dense,
         dropout,
         sDropout,
-        l2
+        l2,
+        args.rot
     )
 
 #Used to generate batches of examples
