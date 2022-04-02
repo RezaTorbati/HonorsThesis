@@ -25,7 +25,7 @@ def visualizeExperiment(dirName, fileBase, metric='categorical_accuracy'):
     results = loadResults(dirName, fileBase)
 
     for i, r in enumerate(results):
-        #if np.average(heapq.nlargest(10, r['history']['val_' + metric])) > .6:
+        #if np.average(heapq.nlargest(10, r['history']['val_' + metric])) > .6: #Leaves only the really good models
         print(r['args'])
         plt.plot(r['history'][metric], label='Model {:d}'.format(i+1))
     plt.title('Training')
@@ -35,7 +35,7 @@ def visualizeExperiment(dirName, fileBase, metric='categorical_accuracy'):
     plt.show()
 
     for i, r in enumerate(results):
-        #if np.average(heapq.nlargest(10, r['history']['val_' + metric])) > .6:
+        #if np.average(heapq.nlargest(10, r['history']['val_' + metric])) > .6: #Leaves only the really good models
         plt.plot(r['history']['val_' + metric], label='Model {:d}'.format(i+1))
     plt.title('Validation')
     plt.xlabel('epochs')
@@ -53,7 +53,11 @@ def visualizeExperiment(dirName, fileBase, metric='categorical_accuracy'):
 def visualizeConfusion(dirName, fileBase, types = ['validation']):
     results = loadResults(dirName, fileBase)
     for r in results:
-        #print(r['args'])
+        print(r['args'])
+        
+        if hasattr(r['args'], 'rot'): #Did this for backward compatibility
+            print('Rotation: ', r['args'].rot)
+            
         for t in types:
             key_predict = 'predict_' + t
             key_true = 'true_' + t

@@ -11,12 +11,9 @@ from tensorflow import keras
 from prep import parsePropulsionCSV
 from model import create_model
 
-#Loads in and prepares the data
-def load_data(args):
-    test = '%s/rot%d'%(args.rotsPath, args.rot)
+def load_file(path, fname, args):
+    ins, outs = parsePropulsionCSV(path, fname, args.pklDir, args.reduce)
 
-    ins, outs = parsePropulsionCSV(args.trainCSVDir, args.trainCSV, args.pklDir, args.reduce)
-    
     #Removes any bad intervals and subtracts 28 from the value
     i=0
     while i < len(outs):
@@ -27,45 +24,54 @@ def load_data(args):
         else:
             outs[i] -= 28
         i+=1     
-    #Converts the ins and outs from a list to a numpy array   
+    
+    return ins, outs
+
+#Loads in and prepares the data
+def load_data(args):
+    #I am assuming that there are 6 folds
+    
+    #Prepares the folds for the training, validation and test data
+    train = []
+    for i in range(0,6):
+        train.append('fold%d.csv'%(i))
+    
+    test = 'fold%d.csv'%(args.rot)
+    del train[args.rot]
+    
+    if args.rot > 0:
+        validation = 'fold%d.csv'%(args.rot-1)
+        del train[args.rot-1]
+    else:
+        validation = 'fold5.csv'
+        del train[4] #This is 4 instead of 5 because I've already deleted an element above
+
+    #Loads in the data
+    print('Train data:')
+    ins, outs = load_file(args.foldsPath, train[0], args)
+    for fold in train[1:]:
+        tmpIns, tmpOuts = load_file(args.foldsPath, fold, args)
+        ins.extend(tmpIns)
+        outs.extend(tmpOuts)
+    
+    print('Validation data:')
+    validIns, validOuts = load_file(args.foldsPath, validation, args)
+    
+    print('Test data:')
+    testIns, testOuts = load_file(args.foldsPath, test, args)
+
+    #Converts the data from lists to numpy arrays   
     ins = np.array(ins)
     outs = np.array(outs)
-
-    #Repeats above but for validation data
-    validIns, validOuts = parsePropulsionCSV(args.validCSVDir, args.validCSV,args.pklDir, args.reduce)
-    i=0
-    while i < len(validOuts):
-        if validOuts[i] == -1:
-            del(validOuts[i])
-            del(validIns[i])
-            i-=1
-        else:
-            validOuts[i] -= 28
-        i+=1
     validIns = np.array(validIns)
     validOuts = np.array(validOuts)
-
-    testIns=None
-    testOuts = None
-    if args.testCSV is not None:
-        testIns, testOuts = parsePropulsionCSV(args.testCSVDir, args.testCSV,args.pklDir, args.reduce)
-        i=0
-        while i < len(testOuts):
-            if testOuts[i] == -1:
-                del(testOuts[i])
-                del(testIns[i])
-                i-=1
-            else:
-                testOuts[i] -= 28
-            i+=1
-        testIns = np.array(testIns)
-        testOuts = np.array(testOuts)
-
-    #1hot encodes the outputs
+    testIns = np.array(testIns)
+    testOuts = np.array(testOuts)
+    
+    #One hot encodes the outputs
     outs = np.eye(args.nclasses)[outs]
     validOuts = np.eye(args.nclasses)[validOuts]
-    if testOuts is not None:
-        testOuts = np.eye(args.nclasses)[testOuts]
+    testOuts = np.eye(args.nclasses)[testOuts]
 
     return ins, outs, validIns, validOuts, testIns, testOuts
 
@@ -84,9 +90,10 @@ def generate_fname(args):
     l2 = '_l2_%.5f'%(args.l2)
     sDropout = '_sDrop_%.2f'%(args.sDropout)
 
-    return '%s/%s_r%s_f%s_k%s_p%s_pStrides%s_d%s%s%s%s'%(
+    return '%s/%s_rot%d_r%s_f%s_k%s_p%s_pStrides%s_d%s%s%s%s'%(
         args.resultsPath,
         args.exp,
+        args.rot,
         args.reduce,
         filters,
         kernelSizes,
@@ -162,11 +169,9 @@ def execute_exp(args):
     results['predict_validation'] = model.predict(validIns)
     results['predict_validation_eval'] = model.evaluate(validIns, validOuts)
     results['true_validation'] = validOuts
-
-    if args.testCSV is not None:
-        results['predict_testing'] = model.predict(testIns)
-        results['predict_testing_eval'] = model.evaluate(testIns, testOuts)
-        results['true_testing'] = testOuts
+    results['predict_testing'] = model.predict(testIns)
+    results['predict_testing_eval'] = model.evaluate(testIns, testOuts)
+    results['true_testing'] = testOuts
 
     results['history'] = history.history
 
@@ -188,14 +193,8 @@ def create_parser():
     
     parser.add_argument('-exp', type=str, default='Propulsion', help='Tag to be put in file name')
     parser.add_argument('-rot', type=int, default=1, help='rotation')
-    parser.add_argument('-rotsPath', type=str, default='rotations', help='Path to the csv files with the rotations')
+    parser.add_argument('-foldsPath', type=str, default='folds', help='Path to the csv files with the folds')
     parser.add_argument('-resultsPath', type=str, default='results', help='Directory to store results in')
-    #parser.add_argument('-trainCSV', type=str, default='MasteryOfPropulsionTrain.csv', help='Training mastery of propulsion csv file')
-    #parser.add_argument('-trainCSVDir', type=str, default='.', help='Training mastery of propulsion csv directory')
-    #parser.add_argument('-validCSV', type=str, default='MasteryOfPropulsionValid.csv', help='Validation mastery of propulsion csv file')
-    #parser.add_argument('-validCSVDir', type=str, default='.', help='Validation mastery of propulsion csv directory')
-    #parser.add_argument('-testCSV', type=str, default=None, help='Test mastery of propulsion csv file')
-    #parser.add_argument('-testCSVDir', type=str, default='.', help='Test mastery of propulsion csv directory')
     parser.add_argument('-pklDir', type=str, default='', help='Directory to the pkl files')
     parser.add_argument('-reduce', type=int, default=1, help='amount to initially reduce the array by')
     parser.add_argument('-nclasses',type = int, default = 6, help='Number of output classes')
@@ -207,12 +206,12 @@ def create_parser():
     parser.add_argument('-min_delta', type=float, default = 0.0, help='Min delta for early termination')
 
     parser.add_argument('-kernel_sizes', nargs='+', type=int, default=[20,10], help='Kernel Sizes')
-    parser.add_argument('-filters', nargs='+', type=int, default=[75,100], help='Filter Sizes')
-    parser.add_argument('-pool_sizes', nargs='+', type=int, default=[1,5], help='Pooling sizes')
-    parser.add_argument('-pool_strides', nargs='+', type = int, default=[1,5], help = 'pooling strides')
+    parser.add_argument('-filters', nargs='+', type=int, default=[60,80], help='Filter Sizes')
+    parser.add_argument('-pool_sizes', nargs='+', type=int, default=[5,1], help='Pooling sizes')
+    parser.add_argument('-pool_strides', nargs='+', type = int, default=[5,1], help = 'pooling strides')
     parser.add_argument('-l2', type=float, default=0, help='Amount of l2 regularization')
 
-    parser.add_argument('-dense', nargs='+', type=int, default = [1000,100], help='Size of the dense layers')
+    parser.add_argument('-dense', nargs='+', type=int, default = [100,20], help='Size of the dense layers')
     parser.add_argument('-dropout', type=float, default=0, help='dropout rate for dense layers')
     parser.add_argument('-sDropout', type=float, default=0, help='dropout rate for filters')
 

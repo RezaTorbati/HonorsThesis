@@ -213,7 +213,7 @@ def getStats(df):
 #Instead each time step is the list of 51 extracted values show above
 def parsePropulsionCSV(directory, fname, pklDirectory = '', reduceSize=1, breakUpValues = True, printStats=True, nogo=False):
     if pklDirectory == '':
-        pklDirectory = directory + '/KinPklData'
+        pklDirectory = './KinPklData'
 
     fname = directory + '/' + fname
     df = pd.read_csv(fname)
@@ -237,10 +237,12 @@ def parsePropulsionCSV(directory, fname, pklDirectory = '', reduceSize=1, breakU
     
     splitLabels = [l for label in labels for l in label]
     
-    #print(len(splitData))
-    #print(len(splitData[0]))
-    #print(len(splitData[0][0]))
-    #print(len(splitLabels))
+    '''
+    print(len(splitData))
+    print(len(splitData[0]))
+    print(len(splitData[0][0]))
+    print(len(splitLabels))
+    '''
 
     return splitData, splitLabels
         
