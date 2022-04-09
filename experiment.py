@@ -30,6 +30,9 @@ def load_file(path, fname, args):
 #Loads in and prepares the data
 def load_data(args):
     #I am assuming that there are 6 folds
+    #Test fold = rot
+    #Validation fold = rot - 1 or 5 if rot==0
+    #Train = remaining folds
     
     #Prepares the folds for the training, validation and test data
     train = []
