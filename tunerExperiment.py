@@ -103,19 +103,24 @@ def batch_generator(ins, outs, batchSize, inputName='input', outputName='output'
 def execute_exp(args):
     ins, outs, validIns, validOuts, testIns, testOuts = load_data(args)
 
+    fbase = generate_fname(args)
+    keras.backend.clear_session()
+
     #Creates the tuner
     tuner = BayesianOptimization(
         build_model,
         objective = 'val_loss',
         max_trials = args.trials,
-        directory='logs'
+        project_name=fbase,
+        overwrite=False,
+        directory=args.logDir
     )
     tuner.search_space_summary()
 
     tunerCallback = keras.callbacks.EarlyStopping(
-        patience = 10, 
+        patience = 55, 
         restore_best_weights=True, 
-        monitor='val_loss',
+        monitor='val_categorical_accuracy',
         mode='max'
     )
     tuner.search(
@@ -144,6 +149,7 @@ def execute_exp(args):
    
     # Generate log data
     results = {}
+    results['args'] = args
     results['hyperparameters'] = bestHyper
     results['predict_training'] = model.predict(ins)
     results['predict_training_eval'] = model.evaluate(ins, outs)
@@ -158,7 +164,6 @@ def execute_exp(args):
     results['history'] = history.history
 
     # Save results
-    fbase = generate_fname(args)
     results['fname_base'] = fbase
     fp = open("%s_results.pkl"%(fbase), "wb")
     pickle.dump(results, fp)
@@ -178,7 +183,8 @@ def create_parser():
     parser.add_argument('-foldsPath', type=str, default='folds', help='Path to the csv files with the folds')
     parser.add_argument('-resultsPath', type=str, default='results', help='Directory to store results in')
     parser.add_argument('-pklDir', type=str, default='', help='Directory to the pkl files')
-    
+    parser.add_argument('-logDir', type=str, default='logs', help='Directory of the log files for the tuner')    
+
     parser.add_argument('-trials', type = int, default = 1, help='Number of trials to run the tuner for')
 
     parser.add_argument('-epochs',type=int, default = 10, help='Number of epochs to run for')
