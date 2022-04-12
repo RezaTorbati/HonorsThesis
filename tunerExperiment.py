@@ -103,6 +103,8 @@ def batch_generator(ins, outs, batchSize, inputName='input', outputName='output'
 def execute_exp(args):
     ins, outs, validIns, validOuts, testIns, testOuts = load_data(args)
 
+    r = args.rot
+    args.rot = 2
     fbase = generate_fname(args)
     keras.backend.clear_session()
 
@@ -146,7 +148,9 @@ def execute_exp(args):
 	    validation_data=(validIns, validOuts),
 	    callbacks=[modelCallback]
     )
-   
+  
+    args.rot = r
+    fbase = generate_fname(args)
     # Generate log data
     results = {}
     results['args'] = args
