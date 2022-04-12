@@ -114,23 +114,24 @@ def execute_exp(args):
         objective = 'val_loss',
         max_trials = args.trials,
         project_name=fbase,
-        overwrite=False,
+        overwrite=args.overwrite,
         directory=args.logDir
     )
     tuner.search_space_summary()
 
-    tunerCallback = keras.callbacks.EarlyStopping(
-        patience = 50, 
-        restore_best_weights=True, 
-        monitor='val_categorical_accuracy',
-        mode='max'
-    )
-    tuner.search(
-        ins, outs, 
-        epochs = args.epochs, 
-        validation_data=(validIns, validOuts),
-        callbacks=[tunerCallback, keras.callbacks.TensorBoard("propulsion")]
-    )
+    if tune:
+        tunerCallback = keras.callbacks.EarlyStopping(
+            patience = 50, 
+            restore_best_weights=True, 
+            monitor='val_categorical_accuracy',
+            mode='max'
+        )
+        tuner.search(
+            ins, outs, 
+            epochs = args.epochs, 
+            validation_data=(validIns, validOuts),
+            callbacks=[tunerCallback, keras.callbacks.TensorBoard("propulsion")]
+        )
 
     bestHyper = tuner.get_best_hyperparameters(1)[0]
     model  = tuner.hypermodel.build(bestHyper)
@@ -191,7 +192,7 @@ def create_parser():
 
     parser.add_argument('-trials', type = int, default = 1, help='Number of trials to run the tuner for')
     parser.add_argument('-overwrite', action = 'count', default = 0, help = 'Overwites the tuner if set')
-    parser.add_argument('-tune', type=bool, default = True, help = 'whether or not to actually run the tuner')
+    parser.add_argument('-tune', type=int, default = 1, help = 'whether or not to actually run the tuner. Used as a bool')
 
     parser.add_argument('-epochs',type=int, default = 10, help='Number of epochs to run for')
     parser.add_argument('-patience', type=int, default = 100, help='Patience for early termination')
