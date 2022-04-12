@@ -118,7 +118,7 @@ def execute_exp(args):
     tuner.search_space_summary()
 
     tunerCallback = keras.callbacks.EarlyStopping(
-        patience = 55, 
+        patience = 50, 
         restore_best_weights=True, 
         monitor='val_categorical_accuracy',
         mode='max'
@@ -186,6 +186,8 @@ def create_parser():
     parser.add_argument('-logDir', type=str, default='logs', help='Directory of the log files for the tuner')    
 
     parser.add_argument('-trials', type = int, default = 1, help='Number of trials to run the tuner for')
+    parser.add_argument('-overwrite', action = 'count', default = 0, help = 'Overwites the tuner if set')
+    parser.add_argument('-tune', type=bool, default = True, help = 'whether or not to actually run the tuner')
 
     parser.add_argument('-epochs',type=int, default = 10, help='Number of epochs to run for')
     parser.add_argument('-patience', type=int, default = 100, help='Patience for early termination')
