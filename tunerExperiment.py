@@ -119,7 +119,7 @@ def execute_exp(args):
     )
     tuner.search_space_summary()
 
-    if tune:
+    if args.tune:
         tunerCallback = keras.callbacks.EarlyStopping(
             patience = 50, 
             restore_best_weights=True, 

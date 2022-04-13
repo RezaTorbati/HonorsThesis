@@ -12,7 +12,7 @@
 # The %04a is translated into a 4-digit number that encodes the SLURM_ARRAY_TASK_ID
 #SBATCH --output=slurmOut/tuner200REAL_%a_stdout.txt
 #SBATCH --error=slurmOut/tuner200REAL_%a_stderr.txt
-#SBATCH --time=00:40:00
+#SBATCH --time=01:30:00
 #SBATCH --job-name=MasteryOfPropulsion
 #SBATCH --mail-user=reza.j.torbati-1@ou.edu
 #SBATCH --mail-type=ALL
