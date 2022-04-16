@@ -196,7 +196,7 @@ def create_parser():
     
     parser.add_argument('-exp', type=str, default='Propulsion', help='Tag to be put in file name')
     parser.add_argument('-rot', type=int, default=1, help='rotation')
-    parser.add_argument('-foldsPath', type=str, default='folds', help='Path to the csv files with the folds')
+    parser.add_argument('-foldsPath', '-f', type=str, default='folds', help='Path to the csv files with the folds')
     parser.add_argument('-resultsPath', type=str, default='results', help='Directory to store results in')
     parser.add_argument('-pklDir', type=str, default='', help='Directory to the pkl files')
     parser.add_argument('-reduce', type=int, default=1, help='amount to initially reduce the array by')

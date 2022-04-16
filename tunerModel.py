@@ -7,13 +7,13 @@ from tensorflow.keras import Model
 import keras_tuner as kt
 
 def build_model(hp):
-    dropout = hp.Float('dropout', 0, .4, step=.05)
-    sDropout = hp.Float('sparseDropout', 0, .20, step=.05)
+    dropout = hp.Float('dropout', .02, .2, step=.02)
+    sDropout = hp.Float('sparseDropout', 0, .16, step=.02)
     activation = 'elu'
     #activation = hp.Choice('activaion', values=['elu', 'sigmoid', 'selu'])
     #convActivation = hp.Choice('convActivation', values=['elu', 'sigmoid', 'exponential', 'selu'])
 
-    l2 = hp.Choice('l2', values=[1e-3, 1e-4, 1e-5, 1e-6, 0.0])
+    l2 = hp.Choice('l2', values=[1e-4, 1e-5, 1e-6, 0.0])
     #l1 = hp.Choice('l1', values=[1e-4, 1e-5, 1e-6, 0.0])
     regularizer = None
     if l2 > 0:
@@ -27,50 +27,39 @@ def build_model(hp):
         regularizer = keras.regularizers.l1_l2(l1, l2)
     '''
     #I assume 4 dense layers
-    dense1 = hp.Int('dense1', 24, 90, step=6)
-    dense2 = hp.Int('dense2', 24, 90, step=6)
-    dense3 = hp.Int('dense3', 18, 72, step=6)
+    dense1 = hp.Int('dense1', 12, 90, step=6)
+    dense2 = hp.Int('dense2', 12, 90, step=6)
+    dense3 = hp.Int('dense3', 12, 72, step=6)
     dense4 = hp.Int('dense4', 12, 36, step=6)
     dense_layers = [dense1, dense2, dense3, dense4]
 
-    learningRate = hp.Choice('learningRate', values=[1e-3, 1e-4, 1e-5])
+    learningRate = hp.Choice('learningRate', values=[1e-2, 1e-3, 1e-4])
+    
+    timeSteps = 1500
     reduction = hp.Choice('reduction', values = [1,2,4,6]) 
-    #reduction = 4
+    timeSteps = timeSteps / reduction
 
-    stepsBeforeFlatten = hp.Int('timeSteps', 1, 5, step=1)
-    #Sets up the kernel sizes, the pool sizes and the pool strides
-    #these will all reduce the network down to one timestep before flattening
-    if reduction == 4:
-        kernelSizes = [5,8,8,8,8,8,8,8,8,8,7,7,7,6,6 - stepsBeforeFlatten]
-        poolSizes =   [1,1,1,3,1,1,3,1,1,3,1,1,1,1,1]
-        poolStrides = [1,1,1,2,1,1,2,1,1,2,1,1,1,1,1]
-    elif reduction == 1:
-        kernelSizes = [5,8,8,8,8,8,8,8,8,8,8,8,7,7,7 - stepsBeforeFlatten]
-        poolSizes =   [1,1,1,5,1,1,4,1,1,4,1,1,1,1,1]
-        poolStrides = [1,1,1,4,1,1,3,1,1,3,1,1,1,1,1]
-    elif reduction == 2:
-        kernelSizes = [5,8,8,8,8,8,8,8,7,7,7,7,7,6,6 - stepsBeforeFlatten]
-        poolSizes =   [1,1,1,4,1,1,4,1,1,3,1,1,1,1,1]
-        poolStrides = [1,1,1,3,1,1,3,1,1,2,1,1,1,1,1]
-    elif reduction == 6:
-        kernelSizes = [5,8,8,8,8,8,8,7,7,7,7,7,7,6,6 - stepsBeforeFlatten]
-        poolSizes =   [1,1,1,3,1,1,3,1,1,2,1,1,1,1,1]
-        poolStrides = [1,1,1,2,1,1,2,1,1,1,1,1,1,1,1]
+    kernelSizes = []
+    poolSizes = []
+    poolStrides = []
+    filters = []
 
-    #sets up the filters
-    f1 = hp.Int('f1', 10,45,step=5)
-    f2 = hp.Int('f2', 5,40,step=5)
-    f3 = hp.Int('f3', 15,50,step=5)
-    f4 = hp.Int('f4', 10,45,step=5)
-    f5 = hp.Int('f5', 20,55,step=5)
-    f6 = hp.Int('f6', 15,50,step=5)
-    f7 = hp.Int('f7', 25,60,step=5)
-    f8 = hp.Int('f8', 20,60,step=5)
-    f9 = hp.Int('f9', 20,60,step=5)
-    f10 = hp.Int('f10', 25,80,step=5)
-    f11 = hp.Int('f11', 35,120,step=5)
-    filters = [f1,f2,f2,f3,f4,f4,f5,f6,f6,f7,f8,f8,f9,f10,f11]
-   
+    #give it up 17 layers
+    for layer in range(1,18):
+        k = hp.Int('kernelSize' + str(layer), 1, 11, step = 2)
+        pSize = hp.Int('poolSize' + str(layer), 4,8, step = 1)
+        pStride = hp.Int('poolStride' + str(layer), 1,4, step = 1)
+        f = hp.Int('filter' + str(layer), 1, 71, step = 5)
+
+        if (timeSteps - (k - 1)) / pStride >= 1:
+            timeSteps = (timeSteps - (k - 1)) / pStride
+            kernelSizes.append(k)
+            if pStride > 1:
+                poolSizes.append(pSize)
+                poolStrides.append(pStride)
+            filters.append(f)
+
+
     conv_layers = [{'filters': f, 'kernelSize': k, 'poolSize': p, 'poolStrides': ps}
             for f, k, p, ps in zip(filters, kernelSizes, poolSizes, poolStrides)]
 

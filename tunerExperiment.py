@@ -81,13 +81,20 @@ def load_data(args):
     return ins, outs, validIns, validOuts, testIns, testOuts
 
 #Creates a string with all of the important training metadata to be used for file names
-def generate_fname(args):
-    return '%s/%s_trials%d_rot%d'%(
-        args.resultsPath,
-        args.exp,
-        args.trials,
-        args.rot
-    )
+def generate_fname(args, tuner:bool):
+    if not tuner:
+        return '%s/%s_trials%d_rot%d'%(
+            args.resultsPath,
+            args.exp,
+            args.trials,
+            args.rot
+        )
+    if tuner:
+        return '%s/%s_trials%d'%(
+            args.resultsPath,
+            args.exp,
+            args.trials
+        )
 
 #Used to generate batches of examples
 #inputName needs to match the name of the input layer
@@ -103,9 +110,7 @@ def batch_generator(ins, outs, batchSize, inputName='input', outputName='output'
 def execute_exp(args):
     ins, outs, validIns, validOuts, testIns, testOuts = load_data(args)
 
-    r = args.rot
-    args.rot = 2
-    fbase = generate_fname(args)
+    fbase = generate_fname(args, tuner=True) #gets a file name for the tuner
     keras.backend.clear_session()
 
     #Creates the tuner
@@ -121,7 +126,7 @@ def execute_exp(args):
 
     if args.tune:
         tunerCallback = keras.callbacks.EarlyStopping(
-            patience = 50, 
+            patience = 40, 
             restore_best_weights=True, 
             monitor='val_categorical_accuracy',
             mode='max'
@@ -150,8 +155,7 @@ def execute_exp(args):
 	    callbacks=[modelCallback]
     )
   
-    args.rot = r
-    fbase = generate_fname(args)
+    fbase = generate_fname(args, tuner = False) #gets a file name for the model
     # Generate log data
     results = {}
     results['args'] = args

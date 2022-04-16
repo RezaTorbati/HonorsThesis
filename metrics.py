@@ -108,3 +108,4 @@ def generate_confusion_matrix(trues, preds, classes):
     new_preds = np.argmax(preds, axis=1) + 1
     confusionMatrix = sklearn.metrics.confusion_matrix(new_trues, new_preds)
     plot_confusion_matrix(confusionMatrix, classes)
+    return confusionMatrix

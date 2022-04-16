@@ -66,7 +66,7 @@ def visualizeConfusion(dirName, fileBase, types = ['validation']):
             key_true = 'true_' + t
 
             try:
-                print('Accuracy: ', r[key_predict+'_eval'][1])
+                print(t.capitalize(), ' Accuracy: ', round(r[key_predict+'_eval'][1],3))
                 preds = r[key_predict]
                 trues = r[key_true]
                 metrics.generate_confusion_matrix(trues, preds, ['28', '29', '30', '31', '32', '33'])
