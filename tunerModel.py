@@ -64,7 +64,7 @@ def build_model(hp):
             for f, k, p, ps in zip(filters, kernelSizes, poolSizes, poolStrides)]
 
     #I'm just going to hardcode these because they probably aren't changing
-    nclasses=6 
+    nclasses=5
     timeSteps = 1500
     channels = 51
 

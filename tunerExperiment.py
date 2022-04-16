@@ -19,12 +19,14 @@ def load_file(path, fname, args):
     #Removes any bad intervals and subtracts 28 from the value
     i=0
     while i < len(outs):
-        if outs[i] == -1:
+        if outs[i] == -1 or outs[i] == 29:
             del(outs[i])
             del(ins[i])
             i-=1
-        else:
+        elif outs[i] == 28:
             outs[i] -= 28
+        else:
+            outs[i] -= 29
         i+=1     
     
     return ins, outs
@@ -72,12 +74,11 @@ def load_data(args):
     validOuts = np.array(validOuts)
     testIns = np.array(testIns)
     testOuts = np.array(testOuts)
-    
-    #One hot encodes the outputs. There are 6 output classes
-    outs = np.eye(6)[outs]
-    validOuts = np.eye(6)[validOuts]
-    testOuts = np.eye(6)[testOuts]
 
+    #One hot encodes the outputs. There are 6 output classes
+    outs = np.eye(5)[outs]
+    validOuts = np.eye(5)[validOuts]
+    testOuts = np.eye(5)[testOuts]
     return ins, outs, validIns, validOuts, testIns, testOuts
 
 #Creates a string with all of the important training metadata to be used for file names
