@@ -13,8 +13,9 @@ def build_model(hp):
     #activation = hp.Choice('activaion', values=['elu', 'sigmoid', 'selu'])
     #convActivation = hp.Choice('convActivation', values=['elu', 'sigmoid', 'exponential', 'selu'])
 
-    l2 = hp.Choice('l2', values=[1e-4, 1e-5, 1e-6, 0.0])
-    #l1 = hp.Choice('l1', values=[1e-4, 1e-5, 1e-6, 0.0])
+    #l2 = hp.Choice('l2', values=[1e-4, 1e-5, 1e-6, 0.0])
+    l2 = hp.Float('l2', 1e-8, 1e-4, sampling = 'log')
+
     regularizer = None
     if l2 > 0:
         regularizer = keras.regularizers.l2(l2)
@@ -33,10 +34,10 @@ def build_model(hp):
     dense4 = hp.Int('dense4', 12, 36, step=6)
     dense_layers = [dense1, dense2, dense3, dense4]
 
-    learningRate = hp.Choice('learningRate', values=[1e-2, 1e-3, 1e-4])
+    learningRate = hp.Choice('learningRate', values=[1e-2, 1e-3, 1e-4], ordered = True)
     
     timeSteps = 1500
-    reduction = hp.Choice('reduction', values = [1,2,4,6]) 
+    reduction = hp.Int('reduction', 1, 4, step = 1, default = 1) 
     timeSteps = timeSteps / reduction
 
     kernelSizes = []
@@ -44,12 +45,12 @@ def build_model(hp):
     poolStrides = []
     filters = []
 
-    #give it up 17 layers
-    for layer in range(1,18):
-        k = hp.Int('kernelSize' + str(layer), 1, 11, step = 2)
-        pSize = hp.Int('poolSize' + str(layer), 4,8, step = 1)
-        pStride = hp.Int('poolStride' + str(layer), 1,4, step = 1)
-        f = hp.Int('filter' + str(layer), 1, 71, step = 5)
+    #give it up 16 layers
+    for layer in range(1,17):
+        k = hp.Int('kernelSize' + str(layer), 1, 11, step = 2, default = 7)
+        pSize = hp.Int('poolSize' + str(layer), 3,7, step = 1, default = 3)
+        pStride = hp.Int('poolStride' + str(layer), 1,3, step = 1, default = 1)
+        f = hp.Int('filter' + str(layer), 1, 71, step = 5, default = 50)
 
         if (timeSteps - (k - 1)) / pStride >= 1:
             timeSteps = int((timeSteps - (k - 1)) / pStride)

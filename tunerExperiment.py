@@ -118,6 +118,7 @@ def execute_exp(args):
     tuner = BayesianOptimization(
         build_model,
         objective = 'val_loss',
+        num_initial_points = 40,
         max_trials = args.trials,
         project_name=fbase,
         overwrite=args.overwrite,
@@ -136,7 +137,7 @@ def execute_exp(args):
             ins, outs, 
             epochs = args.epochs, 
             validation_data=(validIns, validOuts),
-            callbacks=[tunerCallback, keras.callbacks.TensorBoard("propulsion")]
+            callbacks=[tunerCallback, keras.callbacks.TensorBoard(fbase)]
         )
 
     bestHyper = tuner.get_best_hyperparameters(1)[0]
