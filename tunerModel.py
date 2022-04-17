@@ -19,14 +19,7 @@ def build_model(hp):
     regularizer = None
     if l2 > 0:
         regularizer = keras.regularizers.l2(l2)
-    '''
-    if(l1 > 0 and l2 <= 0):
-        regularizer = keras.regularizers.l1(l1)
-    elif(l2 > 0 and l1 <= 0):
-        regularizer = keras.regularizers.l2(l2)
-    elif(l1 > 0 and l2 > 0):
-        regularizer = keras.regularizers.l1_l2(l1, l2)
-    '''
+
     #I assume 4 dense layers
     dense1 = hp.Int('dense1', 12, 90, step=6)
     dense2 = hp.Int('dense2', 12, 90, step=6)

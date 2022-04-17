@@ -117,7 +117,7 @@ def execute_exp(args):
     #Creates the tuner
     tuner = BayesianOptimization(
         build_model,
-        objective = 'val_loss',
+        objective = 'val_categorical_accuracy',
         num_initial_points = 40,
         max_trials = args.trials,
         project_name=fbase,
