@@ -52,7 +52,7 @@ def build_model(hp):
         f = hp.Int('filter' + str(layer), 1, 71, step = 5)
 
         if (timeSteps - (k - 1)) / pStride >= 1:
-            timeSteps = (timeSteps - (k - 1)) / pStride
+            timeSteps = int((timeSteps - (k - 1)) / pStride)
             kernelSizes.append(k)
             if pStride > 1:
                 poolSizes.append(pSize)
@@ -147,5 +147,5 @@ def create_model(ntimeSteps, nchannels, nclasses, convLayers, reduction, denseLa
     model = Model(inputs = inputTensor, outputs = output) #Actually creates the model
     opt = tf.keras.optimizers.Adam(learning_rate=learningRate, beta_1=.9, beta_2=.999, epsilon=None, decay=0.0, amsgrad=False) #Creates the optimizer
     model.compile(loss = 'categorical_crossentropy', optimizer = opt, metrics = ['categorical_accuracy']) #Compiles the model with the optimizer and metrics
-    #print(model.summary())
+    print(model.summary())
     return model
