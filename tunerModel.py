@@ -54,9 +54,8 @@ def build_model(hp):
         if (timeSteps - (k - 1)) / pStride >= 1:
             timeSteps = int((timeSteps - (k - 1)) / pStride)
             kernelSizes.append(k)
-            if pStride > 1:
-                poolSizes.append(pSize)
-                poolStrides.append(pStride)
+            poolSizes.append(pSize)
+            poolStrides.append(pStride)
             filters.append(f)
 
 
@@ -102,7 +101,7 @@ def create_model(ntimeSteps, nchannels, nclasses, convLayers, reduction, denseLa
             kernel_regularizer=regularizer
         )(previousTensor)
 
-        if(i['poolSize'] > 1):
+        if(i['poolStrides'] > 1):
             name='Max%02d'%count
             previousTensor=MaxPooling1D(
                 pool_size=i['poolSize'], 
