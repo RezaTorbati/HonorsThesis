@@ -8,7 +8,7 @@ import keras_tuner as kt
 
 def build_model(hp):
     dropout = hp.Float('dropout', .02, .2, step=.02)
-    sDropout = hp.Float('sparseDropout', 0, .16, step=.02)
+    sDropout = hp.Float('sparseDropout', 0, .14, step=.02)
     activation = 'elu'
     #activation = hp.Choice('activaion', values=['elu', 'sigmoid', 'selu'])
     #convActivation = hp.Choice('convActivation', values=['elu', 'sigmoid', 'exponential', 'selu'])
