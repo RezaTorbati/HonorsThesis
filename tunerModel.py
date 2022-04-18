@@ -38,20 +38,24 @@ def build_model(hp):
     poolStrides = []
     filters = []
 
-    #give it up 16 layers
-    for layer in range(1,17):
+    #give it up 15 layers
+    skip = False
+    for layer in range(1,16):
         k = hp.Int('kernelSize' + str(layer), 1, 11, step = 2, default = 7)
         pSize = hp.Int('poolSize' + str(layer), 3,7, step = 1, default = 3)
-        pStride = hp.Int('poolStride' + str(layer), 1,3, step = 1, default = 1)
+        pStride = hp.Int('poolStride' + str(layer), 1,3, step = 1, default = 1, sampling = 'log')
         f = hp.Int('filter' + str(layer), 1, 71, step = 5, default = 50)
 
-        if (timeSteps - (k - 1)) / pStride >= 1:
+        if skip:
+            continue
+        elif (timeSteps - (k - 1)) / pStride >= 1:
             timeSteps = int((timeSteps - (k - 1)) / pStride)
             kernelSizes.append(k)
             poolSizes.append(pSize)
             poolStrides.append(pStride)
             filters.append(f)
-
+        else:
+            skip = True
 
     conv_layers = [{'filters': f, 'kernelSize': k, 'poolSize': p, 'poolStrides': ps}
             for f, k, p, ps in zip(filters, kernelSizes, poolSizes, poolStrides)]
