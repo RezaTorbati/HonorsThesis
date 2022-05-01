@@ -89,7 +89,7 @@ def plot_confusion_matrix(cm, classes, normalize=False,
     plt.tight_layout()
     plt.show()
 
-def generate_confusion_matrix(trues, preds, classes):
+def generate_confusion_matrix(trues, preds, classes, plot=True):
     '''
     This function generates and plots the confusion matrix for true value and predicted values
     
@@ -107,5 +107,6 @@ def generate_confusion_matrix(trues, preds, classes):
     # threshold for prediction is highest probability class
     new_preds = np.argmax(preds, axis=1) + 1
     confusionMatrix = sklearn.metrics.confusion_matrix(new_trues, new_preds)
-    plot_confusion_matrix(confusionMatrix, classes)
+    if plot:
+        plot_confusion_matrix(confusionMatrix, classes)
     return confusionMatrix

@@ -6,6 +6,8 @@ import numpy as np
 import heapq
 import sklearn
 import metrics
+import prep
+import scipy
 
 #Loads the results matching fileBase in dirName
 def loadResults(dirName, fileBase):
@@ -25,7 +27,6 @@ def visualizeExperiment(dirName, fileBase, metric='categorical_accuracy'):
     results = loadResults(dirName, fileBase)
 
     for i, r in enumerate(results):
-        #if np.average(heapq.nlargest(10, r['history']['val_' + metric])) > .6: #Leaves only the really good models
         if hasattr(r, 'args'):
             print(r['args'])
         plt.plot(r['history'][metric], label='Model {:d}'.format(i+1))
@@ -51,7 +52,7 @@ def visualizeExperiment(dirName, fileBase, metric='categorical_accuracy'):
     print('Average Val Accuracy: ', (accuracy/len(results)))
 
 #Displays the confusion matrix
-def visualizeConfusion(dirName, fileBase, types = ['validation']):
+def visualizeConfusion(dirName, fileBase, types = ['validation'], plot=True):
     results = loadResults(dirName, fileBase)
     for r in results:
         
@@ -69,11 +70,91 @@ def visualizeConfusion(dirName, fileBase, types = ['validation']):
                 print(t.capitalize(), ' Accuracy: ', round(r[key_predict+'_eval'][1],3))
                 preds = r[key_predict]
                 trues = r[key_true]
-                metrics.generate_confusion_matrix(trues, preds, ['28', '29', '30', '31', '32', '33'])
+                metrics.generate_confusion_matrix(trues, preds, ['28', '30', '31', '32', '33'], plot)
             except KeyError as e:
                 print('Error, cannot find key ', t)
 
+#Takes in a model and the args used to create the model
+#Assumes the model was created with the format I setup for the tuner
+#fileName can specify the fold that is compared against
+def getFullPredictions(model, args, fileName = ''):
+    if fileName == '':
+        fileName = 'fold%d.csv'%args.rot
 
+    #Gets the ins and outs without breaking up trials
+    ins, outs = prep.parsePropulsionCSV(args.foldsPath, fileName, breakUpValues = False, printStats = False)
+
+    #Converts the out category to the propulsion score
+    for o in range(0,len(outs)):
+        for t in range(0, len(outs[o])):
+            if(outs[o][t] == 28):
+                outs[o][t] = -2
+            else:
+                outs[o][t] -= 29 #Setting 29 to 0
+    
+    #Gets the predictions and converts them to the proper propulsion score
+    #Assumes the model does not try to predict 29
+    preds = []
+    for i in range(0,len(ins)):
+        trial = np.split(ins[i],10)
+        trial = np.array(trial)
+        p = model.predict(trial).argmax(axis=-1)
+        for j in range(0, len(p)):
+            if outs[i][j] == 0:
+                p[j] = 0
+            elif p[j] == 0:
+                p[j] = -2
+        preds.append(p)
+    
+    #Gets the scaled 5 minute mastery of propulsion score
+    trueScores = []
+    predScores = []
+    for i in range(0, len(preds)):
+        coef = 0
+        if outs[i].count(0) < 10:
+            coef = 10 / (10 - outs[i].count(0))
+        trueScores.append(sum(outs[i]) * coef)
+        predScores.append(sum(preds[i]) * coef)
+
+    #Calculates the total difference between the true and predicted scores, the absolute difference and the rss
+    diffs = []
+    absDiffs = []
+    rss = 0
+    for i in range(0, len(trueScores)):
+        diffs.append(trueScores[i] - predScores[i])
+        absDiffs.append(abs(trueScores[i] - predScores[i]))
+        rss += (trueScores[i] - predScores[i]) ** 2
+        
+    mean = sum(diffs) / len(diffs) 
+    print("Mean Difference: ", mean)
+
+    meanerr = sum(absDiffs) / len(absDiffs)
+    print("Mean Error: ", meanerr)
+
+    #Calculates the FVAF as 1-mse/var where unbiased variance is used
+    mse = rss / len(trueScores)
+    tss = 0
+    trueMean = sum(trueScores) / len(trueScores)
+    for i in trueScores:
+        tss += (i - trueMean) ** 2
+    var = tss / (len(trueScores) - 1)
+    print("FVAF: ", 1 - (mse / var)) #FVAF
+
+    #Gets the pearson p value and the correlation
+    cor, pval = scipy.stats.pearsonr(trueScores, predScores)
+    print("p value: ", pval)
+    print("R^2: ", cor**2)
+
+    #Creates a scatter plot of the predicted scores vs the true scores
+    plt.scatter(trueScores,predScores, label = "predicted", color="gray")
+    plt.plot(trueScores,trueScores, label = "ideal")
+    plt.xlabel('True value')
+    plt.ylabel('Predicted value')
+    plt.axis('square')
+    plt.legend()
+
+
+        
 if __name__=='__main__':
     visualizeExperiment('results', '*.pkl')
     visualizeConfusion('results', '*.pkl')

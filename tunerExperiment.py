@@ -142,7 +142,6 @@ def execute_exp(args):
 
     bestHyper = tuner.get_best_hyperparameters(1)[0]
     model  = tuner.hypermodel.build(bestHyper)
-    print(model.summary())
 
     #Runs the model
     modelCallback = keras.callbacks.EarlyStopping(patience=args.patience,
