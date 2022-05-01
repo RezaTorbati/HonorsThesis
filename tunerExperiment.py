@@ -86,7 +86,7 @@ def generate_fname(args, tuner:bool):
     if not tuner:
         return '%s/%s_trials%d_rot%d'%(
             args.resultsPath,
-            args.exp + '-2',
+            args.exp,
             args.trials,
             args.rot
         )
