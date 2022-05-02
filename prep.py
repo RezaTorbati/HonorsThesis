@@ -211,13 +211,15 @@ def getStats(df):
 #Returns a list of trials as described in pklDictionary
 #Inside each trial is an array containing 15000 time steps
 #Instead each time step is the list of 51 extracted values show above
-def parsePropulsionCSV(directory, fname, pklDirectory = '', reduceSize=1, breakUpValues = True, printStats=True, nogo=False):
+def parsePropulsionCSV(directory, fname, pklDirectory = '', reduceSize=1, breakUpValues = True, printStats=True, nogo=False, minSubjNum = 0, maxSubjNum=10000):
     if pklDirectory == '':
         pklDirectory = './KinPklData'
 
     fname = directory + '/' + fname
     df = pd.read_csv(fname)
-    
+    df = df[df['Subject'] >= minSubjNum]
+    df = df[df['Subject'] <= maxSubjNum]
+
     if printStats:
         getStats(df)
     if nogo:

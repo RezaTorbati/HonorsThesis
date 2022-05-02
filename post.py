@@ -8,16 +8,20 @@ import sklearn
 import metrics
 import prep
 import scipy
+import tensorflow as tf
 
 #Loads the results matching fileBase in dirName
-def loadResults(dirName, fileBase):
+def loadResults(dirName, fileBase, model=False):
     files = fnmatch.filter(os.listdir(dirName), fileBase)
     files.sort()
     
     results = []
     for f in files:
         print(f)
-        results.append(pickle.load(open("%s/%s"%(dirName, f), "rb")))
+        if not model:
+            results.append(pickle.load(open("%s/%s"%(dirName, f), "rb")))
+        else:
+            results.append(tf.keras.models.load_model("%s/%s"%(dirName, f)))
 
     return results
 
@@ -74,15 +78,11 @@ def visualizeConfusion(dirName, fileBase, types = ['validation'], plot=True):
             except KeyError as e:
                 print('Error, cannot find key ', t)
 
-#Takes in a model and the args used to create the model
-#Assumes the model was created with the format I setup for the tuner
-#fileName can specify the fold that is compared against
-def getFullPredictions(model, args, fileName = ''):
-    if fileName == '':
-        fileName = 'fold%d.csv'%args.rot
+def _getScores(model, args, minSubjNum = 0, maxSubjNum = 10000):
+    fileName = 'fold%d.csv'%args.rot
 
     #Gets the ins and outs without breaking up trials
-    ins, outs = prep.parsePropulsionCSV(args.foldsPath, fileName, breakUpValues = False, printStats = False)
+    ins, outs = prep.parsePropulsionCSV(args.foldsPath, fileName, breakUpValues = False, printStats = False, minSubjNum=minSubjNum,maxSubjNum=maxSubjNum)
 
     #Converts the out category to the propulsion score
     for o in range(0,len(outs)):
@@ -115,15 +115,59 @@ def getFullPredictions(model, args, fileName = ''):
             coef = 10 / (10 - outs[i].count(0))
         trueScores.append(sum(outs[i]) * coef)
         predScores.append(sum(preds[i]) * coef)
+    
+    return trueScores, predScores
+
+#Loads in models and the args used to create those models
+#Assumes the models were created with the format I setup for the tuner
+#Current set up to analyze based on rotations or babies with/without cp
+def analyzeFullPredictions(dirName, modelBase, argBase, split = 'rot'):
+    print('Loaded in models:')
+    models = loadResults(dirName, modelBase, model=True)
+    args = loadResults(dirName, argBase)
+    print()
+
+    #Gets the 5 minute mastery of propulsion scores and the predicted scores for each trial
+    if split == 'rot':
+        trueScores = []
+        predScores = []   
+    elif split == 'cp':
+        trueScores = [[],[]]
+        predScores = [[],[]]
+    else:
+        print('Error, split must be "rot" or "cp"')
+        return -1
+
+    for i in range(0, len(models)):
+        if split=='rot':
+            t, p = _getScores(models[i], args[i]['args'])
+            trueScores.append(t)
+            predScores.append(p)
+        elif split == 'cp':
+            #Babies without cp
+            t, p = _getScores(models[i], args[i]['args'], maxSubjNum = 99)
+            for j in range(0,len(t)):
+                trueScores[0].append(t[j])
+                predScores[0].append(p[j])
+            
+            #Babies with cp
+            t, p = _getScores(models[i], args[i]['args'], minSubjNum = 100)
+            for j in range(0,len(t)):
+                trueScores[1].append(t[j])
+                predScores[1].append(p[j])
+
+    #Flattens them out for the statistics that look accross all 6 rotations
+    flatTrues = [t for trues in trueScores for t in trues]
+    flatPreds = [p for preds in predScores for p in preds]
 
     #Calculates the total difference between the true and predicted scores, the absolute difference and the rss
     diffs = []
     absDiffs = []
     rss = 0
-    for i in range(0, len(trueScores)):
-        diffs.append(trueScores[i] - predScores[i])
-        absDiffs.append(abs(trueScores[i] - predScores[i]))
-        rss += (trueScores[i] - predScores[i]) ** 2
+    for i in range(0, len(flatTrues)):        
+        diffs.append(flatTrues[i] - flatPreds[i])
+        absDiffs.append(abs(flatTrues[i] - flatPreds[i]))
+        rss += (flatTrues[i] - flatPreds[i]) ** 2
         
     mean = sum(diffs) / len(diffs) 
     print("Mean Difference: ", mean)
@@ -132,25 +176,40 @@ def getFullPredictions(model, args, fileName = ''):
     print("Mean Error: ", meanerr)
 
     #Calculates the FVAF as 1-mse/var where unbiased variance is used
-    mse = rss / len(trueScores)
+    mse = rss / len(flatTrues)
     tss = 0
-    trueMean = sum(trueScores) / len(trueScores)
-    for i in trueScores:
+    trueMean = sum(flatTrues) / len(flatTrues)
+    for i in flatTrues:
         tss += (i - trueMean) ** 2
-    var = tss / (len(trueScores) - 1)
-    print("FVAF: ", 1 - (mse / var)) #FVAF
+    var = tss / (len(flatTrues) - 1)
+    print("FVAF: ", 1 - (mse / var)) 
+    print()
 
-    #Gets the pearson p value and the correlation
-    cor, pval = scipy.stats.pearsonr(trueScores, predScores)
-    print("p value: ", pval)
-    print("R^2: ", cor**2)
+    cor, pval = scipy.stats.pearsonr(flatTrues, flatPreds)
+    print("Complete p value: ", pval)
+    print("Complete R^2: ", cor**2)
+    #Gets the pearson p value and the correlation and the scatter plot for each model
+    for i in range(0, len(trueScores)):
+        if split == 'rot':
+            label = "Model %d"%(i+1)
+        else:
+            if i == 0:
+                label = "Typical"
+            else:
+                label = "CP"
+        plt.scatter(trueScores[i],predScores[i], label = label)
+        
+        cor, pval = scipy.stats.pearsonr(trueScores[i], predScores[i])
+        print(label)
+        print("p value: ", pval)
+        print("R^2: ", cor**2)
+        print()
 
-    #Creates a scatter plot of the predicted scores vs the true scores
-    plt.scatter(trueScores,predScores, label = "predicted", color="gray")
-    plt.plot(trueScores,trueScores, label = "ideal")
+    #Creates the rest of the plot
+    plt.plot(flatTrues,flatTrues, label = "ideal", color='black')
     plt.xlabel('True value')
     plt.ylabel('Predicted value')
-    plt.axis('square')
+    plt.axis('equal')
     plt.legend()
 
 
