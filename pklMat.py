@@ -5,6 +5,11 @@ import sys
 import pickle
 import pandas as pd
 
+'''
+This program is created to convert the mat files that contain all of the kinematics data
+into a pkl file that my programs will easily be able to use.
+'''
+
 #Converts a single kin mat file
 def convertMat(fname, target = ''):  
     if target == '':
@@ -32,7 +37,7 @@ def convertMat(fname, target = ''):
 
     pickle.dump(trials, open(target, 'wb'))
 
-#Converts all of the kin files inside of a master of propulsion mat
+#Converts all of the kin files inside of a mastery of propulsion mat
 def convertCSV(csvName, directory, outDirectory =  ''):
     if outDirectory == '':
         outDirectory = directory
