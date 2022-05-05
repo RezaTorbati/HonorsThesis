@@ -78,8 +78,14 @@ def visualizeConfusion(dirName, fileBase, types = ['validation'], plot=True):
             except KeyError as e:
                 print('Error, cannot find key ', t)
 
-def _getScores(model, args, minSubjNum = 0, maxSubjNum = 10000):
-    fileName = 'fold%d.csv'%args.rot
+def _getScores(model, args, minSubjNum = 0, maxSubjNum = 10000, valid=False):
+    if valid:
+        rot = args.rot-1
+        if args.rot == 0:
+            rot=5
+    else: #assumes test
+        rot = args.rot
+    fileName = 'fold%d.csv'%rot
 
     #Gets the ins and outs without breaking up trials
     ins, outs = prep.parsePropulsionCSV(args.foldsPath, fileName, breakUpValues = False, printStats = False, minSubjNum=minSubjNum,maxSubjNum=maxSubjNum)
@@ -87,7 +93,9 @@ def _getScores(model, args, minSubjNum = 0, maxSubjNum = 10000):
     #Converts the out category to the propulsion score
     for o in range(0,len(outs)):
         for t in range(0, len(outs[o])):
-            if(outs[o][t] == 28):
+            if(outs[o][t] == -1):
+                outs[o][t] = 0
+            elif(outs[o][t] == 28):
                 outs[o][t] = -2
             else:
                 outs[o][t] -= 29 #Setting 29 to 0
@@ -115,13 +123,16 @@ def _getScores(model, args, minSubjNum = 0, maxSubjNum = 10000):
             coef = 10 / (10 - outs[i].count(0))
         trueScores.append(sum(outs[i]) * coef)
         predScores.append(sum(preds[i]) * coef)
+        if(trueScores[len(trueScores)-1] < -20):
+            print(trueScores[len(trueScores)-1])
+            print(outs[i])
     
     return trueScores, predScores
 
 #Loads in models and the args used to create those models
 #Assumes the models were created with the format I setup for the tuner
-#Current set up to analyze based on rotations or babies with/without cp
-def analyzeFullPredictions(dirName, modelBase, argBase, split = 'rot'):
+#Split should be either 'rot' or 'cp'
+def analyzeFullPredictions(dirName, modelBase, argBase, split = 'rot', valid=False):
     print('Loaded in models:')
     models = loadResults(dirName, modelBase, model=True)
     args = loadResults(dirName, argBase)
@@ -134,24 +145,24 @@ def analyzeFullPredictions(dirName, modelBase, argBase, split = 'rot'):
     elif split == 'cp':
         trueScores = [[],[]]
         predScores = [[],[]]
-    else:
+    else: #After this, the code knows that split is either cp or rot
         print('Error, split must be "rot" or "cp"')
         return -1
 
     for i in range(0, len(models)):
         if split=='rot':
-            t, p = _getScores(models[i], args[i]['args'])
+            t, p = _getScores(models[i], args[i]['args'], valid=valid)
             trueScores.append(t)
             predScores.append(p)
         elif split == 'cp':
             #Babies without cp
-            t, p = _getScores(models[i], args[i]['args'], maxSubjNum = 99)
+            t, p = _getScores(models[i], args[i]['args'], maxSubjNum = 99, valid=valid)
             for j in range(0,len(t)):
                 trueScores[0].append(t[j])
                 predScores[0].append(p[j])
             
             #Babies with cp
-            t, p = _getScores(models[i], args[i]['args'], minSubjNum = 100)
+            t, p = _getScores(models[i], args[i]['args'], minSubjNum = 100, valid=valid)
             for j in range(0,len(t)):
                 trueScores[1].append(t[j])
                 predScores[1].append(p[j])
@@ -197,7 +208,7 @@ def analyzeFullPredictions(dirName, modelBase, argBase, split = 'rot'):
                 label = "Typical"
             else:
                 label = "CP"
-        plt.scatter(trueScores[i],predScores[i], label = label)
+        plt.scatter(trueScores[i],predScores[i], label = label, s=16)
         
         cor, pval = scipy.stats.pearsonr(trueScores[i], predScores[i])
         print(label)
