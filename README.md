@@ -97,6 +97,7 @@ Takes three arguments:
 * dirName: the directory that contains the results of interest
 * fileBase: the regex for the files of interest
 * metric: The metric of interest. Defaults to categorical_accuracy
+<br>
 This will create plots showing how the models progressed on the training data and the validation data
 
 ### Visualize Confusion
@@ -104,7 +105,8 @@ Takes four arguments:
 * dirName: the directory that contains the results of interest
 * fileBase: the regex for the files of interest
 * types: list containing 'validation' for the validation data and/or 'test' for the test data. Defaults to \['validation'\]
-* plot: if the function should show the plot of the confusion matrix. Defaults to True
+* plot: if the function should show the plot of the confusion matrix. Defaults to True 
+<br>
 Creates a confusion matrix of the specified files with the specified types and returns it. Will also display a plot of the confusion matrix if plot is True
 
 ### getFullResults
@@ -114,4 +116,5 @@ Takes 5 arguments:
 * fileBase: the regex for the models of interest. Should be the same as argBase except '_results.pkl' should be replaced with '_model'
 * split: either 'rot' or 'cp' if you're curious in comparing models based on rotation or if the baby was at risk of cerebral palsy or not. Defaults to ;rot'
 * valid: True if comparing validation data. False if comparing test data. Defaults to False.
+<br>
 This loads in the specified models and outputs various statistics based on the 5 minute mastery of propulsion MOCS scores that the model outputted vs. the true 5 minute mastery of propulsion MOCS scores.
