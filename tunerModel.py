@@ -55,7 +55,7 @@ def build_model(hp):
     conv_layers = [{'filters': f, 'kernelSize': k, 'poolSize': p, 'poolStrides': ps}
             for f, k, p, ps in zip(filters, kernelSizes, poolSizes, poolStrides)]
 
-    #I'm just going to hardcode these because they probably aren't changing
+    #I'm just going to hardcode these because I don't really know how to pass them in
     nclasses=5
     timeSteps = 1500
     channels = 51
