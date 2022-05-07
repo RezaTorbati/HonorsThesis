@@ -83,16 +83,35 @@ Defaults to 100
 
 ### Training the Model
 To actually train the model based on the best set of hyperparameters found so far, run `python3 -exp <EXP_NAME_OF_TUNER> -trials <TRIALS_SET_FOR_THE_TUNER> -tune 0`. <br>
-This will load in the tuner that used the same exp and trials specified and created a model based off of it. It is a good idea to change the number of epochs, patience and rot when doing this! <br>
+This will load in the tuner that used the same exp and trials specified and created a model based off of it. <br>
+It is a good idea to change the number of epochs, patience and rot when doing this! <br>
 <br>
 A model will also automatically be trained when a tuner reaches the specified number of trials based on the best hyperparameters that the tuner found.
 
 ### Changing the Tuner
-Unfortunately, I did not make this doable from the commandline. To change how the tuner itself runs, you must go to tunerModel.py and change the code in `build_model`
+I did not make this doable from the commandline. To change how the tuner itself runs, you must go to tunerModel.py and change the code in `build_model`
 
 ## Analysis
 ### Visualize Model
+Takes three arguments:
+* dirName: the directory that contains the results of interest
+* fileBase: the regex for the files of interest
+* metric: The metric of interest. Defaults to categorical_accuracy
+This will create plots showing how the models progressed on the training data and the validation data
 
 ### Visualize Confusion
+Takes four arguments:
+* dirName: the directory that contains the results of interest
+* fileBase: the regex for the files of interest
+* types: list containing 'validation' for the validation data and/or 'test' for the test data. Defaults to \['validation'\]
+* plot: if the function should show the plot of the confusion matrix. Defaults to True
+Creates a confusion matrix of the specified files with the specified types and returns it. Will also display a plot of the confusion matrix if plot is True
 
 ### getFullResults
+Takes 5 arguments:
+* dirName: the directory that contains the results of interest
+* argBase: the regex for the args of interest
+* fileBase: the regex for the models of interest. Should be the same as argBase except '_results.pkl' should be replaced with '_model'
+* split: either 'rot' or 'cp' if you're curious in comparing models based on rotation or if the baby was at risk of cerebral palsy or not. Defaults to ;rot'
+* valid: True if comparing validation data. False if comparing test data. Defaults to False.
+This loads in the specified models and outputs various statistics based on the 5 minute mastery of propulsion MOCS scores that the model outputted vs. the true 5 minute mastery of propulsion MOCS scores.
