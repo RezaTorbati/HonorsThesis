@@ -19,6 +19,7 @@ An example of this is as follows <br>
 Subject,Date,Trial,File,0,30,60,90,120,150,180,210,240,270,FinalScore
 29,01/22,1,kin_stat1_2016Y_01M_22D_12h_19m_29s_S3-subject-29_trials_1.mat,31,28,28,32,31,31,32,31,31,31,14
 ```
+<br>
 Here, this was subject 29, the trial took place on January 22nd, trial 1 was scored, and the baby got a score of 31 for the first 30 seconds, 28 for the seconds, etc. and the grader found that the baby's final score was 14.
 
 ### Collect the Required Mat Files
