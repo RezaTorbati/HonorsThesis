@@ -58,25 +58,28 @@ def visualizeExperiment(dirName, fileBase, metric='categorical_accuracy'):
 #Displays the confusion matrix
 def visualizeConfusion(dirName, fileBase, types = ['validation'], plot=True):
     results = loadResults(dirName, fileBase)
+    accuracy = [0] * len(types)
     for r in results:
         
-        if hasattr(r, 'args'):
-            print(r['args'])
+        if hasattr(r['args'], 'rot'): #Did this for backward compatibility
+            print('Rotation: ', r['args'].rot)
             
-            if hasattr(r['args'], 'rot'): #Did this for backward compatibility
-                print('Rotation: ', r['args'].rot)
-            
+        i = 0
         for t in types:
             key_predict = 'predict_' + t
             key_true = 'true_' + t
 
             try:
                 print(t.capitalize(), ' Accuracy: ', round(r[key_predict+'_eval'][1],3))
+                accuracy[i] += r[key_predict+'_eval'][1]
                 preds = r[key_predict]
                 trues = r[key_true]
                 metrics.generate_confusion_matrix(trues, preds, ['28', '30', '31', '32', '33'], plot)
             except KeyError as e:
                 print('Error, cannot find key ', t)
+            i+=1
+    for t in range(0, len(types)):
+        print(f'Average {types[t]} accuracy: {accuracy[t]/len(results)}')
 
 def _getScores(model, args, minSubjNum = 0, maxSubjNum = 10000, valid=False):
     if valid:
@@ -207,7 +210,7 @@ def analyzeFullPredictions(dirName, modelBase, argBase, split = 'rot', valid=Fal
             if i == 0:
                 label = "Typical"
             else:
-                label = "CP"
+                label = "At Risk"
         plt.scatter(trueScores[i],predScores[i], label = label, s=16)
         
         cor, pval = scipy.stats.pearsonr(trueScores[i], predScores[i])

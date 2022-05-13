@@ -2,7 +2,7 @@ import tensorflow as tf
 
 from tensorflow import keras
 from tensorflow.keras.layers import Input, Concatenate
-from tensorflow.keras.layers import Convolution1D, Dense, MaxPooling1D, Flatten, BatchNormalization, Dropout, AveragePooling1D, SpatialDropout1D
+from tensorflow.keras.layers import Convolution1D, Dense, MaxPooling1D, Flatten, Dropout, AveragePooling1D, SpatialDropout1D
 from tensorflow.keras import Model
 import keras_tuner as kt
 
